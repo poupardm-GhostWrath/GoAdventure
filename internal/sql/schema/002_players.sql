@@ -1,0 +1,13 @@
+CREATE TABLE players (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL,
+  current_exp INTEGER DEFAULT 0,
+  current_level INTEGER DEFAULT 1,
+  max_health INTEGER DEFAULT 100,
+  max_mana INTEGER DEFAULT 100,
+  strength INTEGER DEFAULT 10,
+  defense INTEGER DEFAULT 10,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE
+);
