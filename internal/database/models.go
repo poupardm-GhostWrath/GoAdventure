@@ -9,6 +9,12 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Inventory struct {
+	ItemID   uuid.UUID
+	PlayerID uuid.UUID
+	Quantity int32
+}
+
 type Item struct {
 	ID           uuid.UUID
 	Name         string
@@ -29,10 +35,6 @@ type Player struct {
 	Name         string
 	CurrentExp   pgtype.Int4
 	CurrentLevel pgtype.Int4
-	MaxHealth    pgtype.Int4
-	MaxMana      pgtype.Int4
-	Strength     pgtype.Int4
-	Defense      pgtype.Int4
 	Gold         pgtype.Int4
 	CreatedAt    pgtype.Timestamptz
 	UpdatedAt    pgtype.Timestamptz

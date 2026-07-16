@@ -24,6 +24,16 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
 	return err
 }
 
+const deleteUsersByEmail = `-- name: DeleteUsersByEmail :exec
+DELETE FROM users
+WHERE email = $1
+`
+
+func (q *Queries) DeleteUsersByEmail(ctx context.Context, email string) error {
+	_, err := q.db.Exec(ctx, deleteUsersByEmail, email)
+	return err
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT id, email, password_hash, created_at, updated_at FROM users
 WHERE email = $1
@@ -40,4 +50,20 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const updateUserPassword = `-- name: UpdateUserPassword :exec
+UPDATE users
+SET password_hash = $2, updated_at = NOW()
+WHERE email = $1
+`
+
+type UpdateUserPasswordParams struct {
+	Email        string
+	PasswordHash string
+}
+
+func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) error {
+	_, err := q.db.Exec(ctx, updateUserPassword, arg.Email, arg.PasswordHash)
+	return err
 }

@@ -1,0 +1,1 @@
+CREATE INDEX idx_inventory_player_id ON inventory(player_id);
