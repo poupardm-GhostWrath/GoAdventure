@@ -3,9 +3,12 @@ package models
 import (
 	"errors"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Player struct {
+	id        uuid.UUID
 	name      string
 	level     level
 	health    health
@@ -13,7 +16,7 @@ type Player struct {
 	stat      stat
 	buff      *Buff
 	inventory map[Item]int32
-	gil       int32
+	gold      int32
 }
 
 type level struct {
@@ -42,29 +45,43 @@ type Buff struct {
 	expireAt time.Time
 }
 
-func NewPlayer(name string) (*Player, error) {
+func NewPlayer(id uuid.UUID, name string, currentExp, currentLevel, gold int32, inventory map[Item]int32) (*Player, error) {
+	var uuidNil uuid.UUID
+	if id == uuidNil {
+		return nil, errors.New("invalid id")
+	}
 	if name == "" {
 		return nil, errors.New("invalid player name")
 	}
 	player := Player{
+		id:   id,
 		name: name,
-		level: level{
-			currentExp:   0,
-			currentLevel: 1,
-		},
-		health: health{
-			currentHealth: 100,
-			maxHealth:     100,
-		},
-		mana: mana{
-			currentMana: 100,
-			maxMana:     100,
-		},
-		stat: stat{
-			strength: 10,
-			defense:  10,
-		},
 	}
+
+	// Set Level
+	if currentExp >= 0 || currentExp <= 1000 {
+		player.level.currentExp = currentExp
+	}
+	player.level.currentLevel = max(currentLevel, 1)
+
+	// Set Health
+	player.health.maxHealth = ((player.level.currentLevel - 1) * 10) + 100
+	player.health.currentHealth = player.health.maxHealth
+
+	// Set Mana
+	player.mana.maxMana = ((player.level.currentLevel - 1) * 10) + 100
+	player.mana.currentMana = player.mana.maxMana
+
+	// Set Stat
+	player.stat.strength = ((player.level.currentLevel - 1) * 2) + 10
+	player.stat.defense = ((player.level.currentLevel - 1) * 2) + 10
+
+	// Set Inventory
+	player.inventory = inventory
+
+	// Set Gold
+	player.gold = max(gold, 0)
+
 	return &player, nil
 }
 
@@ -231,23 +248,23 @@ func (p *Player) RemoveItem(item Item, amount int32) (int32, error) {
 	return amount, nil
 }
 
-// Gil Functions
-func (p *Player) GetGil() int32 {
-	return p.gil
+// Gold Functions
+func (p *Player) GetGold() int32 {
+	return p.gold
 }
 
-func (p *Player) AddGil(amount int32) error {
+func (p *Player) AddGold(amount int32) error {
 	if amount < 0 {
-		return errors.New("invalid gil amount")
+		return errors.New("invalid gold amount")
 	}
-	p.gil += amount
+	p.gold += amount
 	return nil
 }
 
-func (p *Player) RemoveGil(amount int32) error {
-	if amount > p.gil {
-		return errors.New("not enough gil")
+func (p *Player) RemoveGold(amount int32) error {
+	if amount > p.gold {
+		return errors.New("not enough gold")
 	}
-	p.gil -= amount
+	p.gold -= amount
 	return nil
 }
