@@ -1,0 +1,1 @@
+CREATE INDEX idx_item_categories_name on item_categories(name);
