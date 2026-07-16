@@ -44,7 +44,7 @@ type Buff struct {
 
 func NewPlayer(name string) (*Player, error) {
 	if name == "" {
-		return nil, errors.New("invalid name")
+		return nil, errors.New("invalid player name")
 	}
 	player := Player{
 		name: name,
