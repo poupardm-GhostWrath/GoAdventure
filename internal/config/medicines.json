@@ -1,20 +1,14 @@
 {
   "Potion": {
     "description": "Restores 20HP",
-    "category": 3,
-    "effect": {
-      "target": "Health",
-      "effect_value": 20
-    },
+    "effect_target": "Health",
+    "effect_value": 20,
     "value": 10
   },
   "Ether": {
     "description": "Restore 20MP",
-    "category": 3,
-    "effect": {
-      "target": "Mana",
-      "effect_value": 20
-    },
+    "effect_target": "Mana",
+    "effect_value": 20,
     "value": 10
   }
 }

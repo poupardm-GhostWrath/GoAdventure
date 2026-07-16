@@ -1,11 +1,8 @@
 {
   "Boiled Egg": {
     "description": "Increase HP by 20 for 30 minutes",
-    "category": 4,
-    "effect": {
-      "target": "Health",
-      "effect_value": 20
-    },
+    "effect_target": "Health",
+    "effect_value": 20,
     "value": 5
   }
 }
