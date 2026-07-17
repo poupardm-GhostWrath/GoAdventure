@@ -7,58 +7,43 @@ package database
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createItems = `-- name: CreateItems :one
-INSERT INTO items (name, description, category_id, effect_target, effect_value, value)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, name, description, category_id, effect_target, effect_value, value
+const getItems = `-- name: GetItems :many
+SELECT id, name, description, category_id, effect_description, effect_target, effect_value, value FROM items
 `
 
-type CreateItemsParams struct {
-	Name         string
-	Description  string
-	CategoryID   int32
-	EffectTarget pgtype.Text
-	EffectValue  pgtype.Int4
-	Value        int32
-}
-
-func (q *Queries) CreateItems(ctx context.Context, arg CreateItemsParams) (Item, error) {
-	row := q.db.QueryRow(ctx, createItems,
-		arg.Name,
-		arg.Description,
-		arg.CategoryID,
-		arg.EffectTarget,
-		arg.EffectValue,
-		arg.Value,
-	)
-	var i Item
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Description,
-		&i.CategoryID,
-		&i.EffectTarget,
-		&i.EffectValue,
-		&i.Value,
-	)
-	return i, err
-}
-
-const deleteItems = `-- name: DeleteItems :exec
-DELETE FROM items
-`
-
-func (q *Queries) DeleteItems(ctx context.Context) error {
-	_, err := q.db.Exec(ctx, deleteItems)
-	return err
+func (q *Queries) GetItems(ctx context.Context) ([]Item, error) {
+	rows, err := q.db.Query(ctx, getItems)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Item
+	for rows.Next() {
+		var i Item
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.CategoryID,
+			&i.EffectDescription,
+			&i.EffectTarget,
+			&i.EffectValue,
+			&i.Value,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getItemsByCategoryID = `-- name: GetItemsByCategoryID :many
-SELECT id, name, description, category_id, effect_target, effect_value, value FROM items
+SELECT id, name, description, category_id, effect_description, effect_target, effect_value, value FROM items
 WHERE category_id = $1
 `
 
@@ -76,6 +61,7 @@ func (q *Queries) GetItemsByCategoryID(ctx context.Context, categoryID int32) ([
 			&i.Name,
 			&i.Description,
 			&i.CategoryID,
+			&i.EffectDescription,
 			&i.EffectTarget,
 			&i.EffectValue,
 			&i.Value,
@@ -91,7 +77,7 @@ func (q *Queries) GetItemsByCategoryID(ctx context.Context, categoryID int32) ([
 }
 
 const getItemsByName = `-- name: GetItemsByName :one
-SELECT id, name, description, category_id, effect_target, effect_value, value FROM items
+SELECT id, name, description, category_id, effect_description, effect_target, effect_value, value FROM items
 WHERE name = $1
 `
 
@@ -103,6 +89,7 @@ func (q *Queries) GetItemsByName(ctx context.Context, name string) (Item, error)
 		&i.Name,
 		&i.Description,
 		&i.CategoryID,
+		&i.EffectDescription,
 		&i.EffectTarget,
 		&i.EffectValue,
 		&i.Value,

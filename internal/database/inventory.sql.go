@@ -17,7 +17,7 @@ VALUES ($1, $2, $3)
 `
 
 type CreateInventoryItemParams struct {
-	ItemID   uuid.UUID
+	ItemID   int32
 	PlayerID uuid.UUID
 	Quantity int32
 }
@@ -33,7 +33,7 @@ WHERE item_id = $1 AND player_id = $2
 `
 
 type DeleteInventoryItemParams struct {
-	ItemID   uuid.UUID
+	ItemID   int32
 	PlayerID uuid.UUID
 }
 

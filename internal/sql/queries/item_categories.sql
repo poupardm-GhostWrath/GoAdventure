@@ -1,3 +1,2 @@
--- name: GetItemCategoriesByName :one
-SELECT * FROM item_categories
-WHERE name = $1;
+-- name: GetItemCategories :many
+SELECT * FROM item_categories;

@@ -1,0 +1,2 @@
+INSERT INTO items (name, description, category_id, effect_description, effect_target, effect_value, value) VALUES
+('Boiled Egg', 'A boiled chicken egg.', 5, 'Increases HP by 20 for 30 minutes.', 'Health', 20, 5);

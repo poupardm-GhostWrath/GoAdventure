@@ -10,19 +10,20 @@ import (
 )
 
 type Inventory struct {
-	ItemID   uuid.UUID
+	ItemID   int32
 	PlayerID uuid.UUID
 	Quantity int32
 }
 
 type Item struct {
-	ID           uuid.UUID
-	Name         string
-	Description  string
-	CategoryID   int32
-	EffectTarget pgtype.Text
-	EffectValue  pgtype.Int4
-	Value        int32
+	ID                int32
+	Name              string
+	Description       string
+	CategoryID        int32
+	EffectDescription pgtype.Text
+	EffectTarget      pgtype.Text
+	EffectValue       pgtype.Int4
+	Value             int32
 }
 
 type ItemCategory struct {
