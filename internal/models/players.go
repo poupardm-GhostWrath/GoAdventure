@@ -15,7 +15,7 @@ type Player struct {
 	mana      mana
 	stat      stat
 	buff      *Buff
-	inventory map[Item]int32
+	inventory map[int32]int32
 	gold      int32
 }
 
@@ -45,7 +45,7 @@ type Buff struct {
 	expireAt time.Time
 }
 
-func NewPlayer(id uuid.UUID, name string, currentExp, currentLevel, gold int32, inventory map[Item]int32) (*Player, error) {
+func NewPlayer(id uuid.UUID, name string, currentExp, currentLevel, gold int32, inventory map[int32]int32) (*Player, error) {
 	var uuidNil uuid.UUID
 	if id == uuidNil {
 		return nil, errors.New("invalid id")
@@ -218,33 +218,33 @@ func (p *Player) AddBuff(buff *Buff) error {
 }
 
 // Inventory Functions
-func (p *Player) GetInventory() map[Item]int32 {
+func (p *Player) GetInventory() map[int32]int32 {
 	return p.inventory
 }
 
-func (p *Player) AddItem(item Item, amount int32) error {
+func (p *Player) AddItem(itemID int32, amount int32) error {
 	if amount <= 0 {
 		return errors.New("invalid item amount")
 	}
-	_, ok := p.inventory[item]
+	_, ok := p.inventory[itemID]
 	if !ok {
-		p.inventory[item] = amount
+		p.inventory[itemID] = amount
 	} else {
-		p.inventory[item] += amount
+		p.inventory[itemID] += amount
 	}
 	return nil
 }
 
-func (p *Player) RemoveItem(item Item, amount int32) (int32, error) {
-	num, ok := p.inventory[item]
+func (p *Player) RemoveItem(itemID int32, amount int32) (int32, error) {
+	num, ok := p.inventory[itemID]
 	if !ok {
 		return 0, errors.New("invalid item")
 	}
 	if num <= amount {
-		delete(p.inventory, item)
+		delete(p.inventory, itemID)
 		return num, nil
 	}
-	p.inventory[item] -= amount
+	p.inventory[itemID] -= amount
 	return amount, nil
 }
 

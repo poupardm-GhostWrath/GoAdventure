@@ -7,11 +7,11 @@ import (
 	"github.com/poupardm-GhostWrath/GoAdventure/internal/models"
 )
 
-var itemList = make(map[string]*models.Item)
+var itemList = make(map[int32]*models.Item)
 
 var ItemCategories = make(map[int32]string)
 
-func InitializeItems(dbQueries *database.Queries) (map[string]*models.Item, error) {
+func InitializeItems(dbQueries *database.Queries) (map[int32]*models.Item, error) {
 	// Get Item Categories
 	dbItemCategories, err := dbQueries.GetItemCategories(context.Background())
 	if err != nil {
@@ -43,7 +43,7 @@ func InitializeItems(dbQueries *database.Queries) (map[string]*models.Item, erro
 			return itemList, err
 		}
 
-		itemList[dbItem.Name] = item
+		itemList[dbItem.ID] = item
 	}
 
 	return itemList, nil

@@ -17,5 +17,5 @@ type GlobalConfig struct {
 
 type GlobalAssets struct {
 	Player *models.Player
-	Items  map[string]*models.Item
+	Items  map[int32]*models.Item
 }
