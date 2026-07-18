@@ -172,6 +172,8 @@ func run(ctx context.Context, cancel context.CancelFunc) int {
 		}
 	}
 	fmt.Printf("======== Welcome %s =======\n", Assets.Player.GetName())
+	fmt.Println("You are in the Starting Town!")
+	fmt.Printf("What would you like to do?: ")
 	<-ctx.Done()
 	_, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
