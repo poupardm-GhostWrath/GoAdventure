@@ -3,11 +3,13 @@ package main
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -173,9 +175,85 @@ func run(ctx context.Context, cancel context.CancelFunc) int {
 	}
 	fmt.Printf("======== Welcome %s =======\n", Assets.Player.GetName())
 	fmt.Println("You are in the Starting Town!")
-	fmt.Printf("What would you like to do?: ")
-	<-ctx.Done()
+	fmt.Println("Notice: type 'exit' to exit.")
+	fmt.Println("Notice: type 'help' for help menu.")
+
+	for {
+		fmt.Print("What would you like to do?: ")
+		if scanner.Scan() {
+			input := scanner.Text()
+			exit, err := parseCommand(input)
+			if err != nil {
+				fmt.Println(err)
+			}
+			if exit {
+				break
+			}
+		}
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
+		}
+	}
+	ctx.Done()
 	_, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	return 0
+}
+
+func parseCommand(cmd string) (bool, error) {
+	parts := strings.Split(strings.ToLower(strings.TrimSpace(cmd)), " ")
+
+	if len(parts) == 0 {
+		return false, errors.New("invalid command")
+	}
+	verb := parts[0]
+	if verb == "exit" || verb == "quit" {
+
+	}
+	switch verb {
+	case "exit", "quit":
+		fmt.Println("Thank you for playing. See you next time.")
+		return true, nil
+	case "help":
+		fmt.Println("=== Help Menu ===")
+		help_menu := `
++-------------+-------------------+
+| Action      | Command           |
++-------------+-------------------+
+| Exit        | exit              |
+|             | quit              |
++-------------+-------------------+
+| Help        | help              |
++-------------+-------------------+
+| Move        | move <direction>  |
+|             | go <direction>    |
++-------------+-------------------+
+| Look        | look              |
++-------------+-------------------+
+| Inventory   | inventory         |
+|             | inv               |
++-------------+-------------------+
+| Take        | take              |
++-------------+-------------------+
+`
+		fmt.Println(help_menu)
+		return false, nil
+	case "go", "move":
+		if len(parts) < 2 {
+			return false, errors.New("Go where?")
+		} else {
+			return false, errors.New("Move feature not implemented.")
+		}
+	case "look":
+		return false, errors.New("Look feature not implemented.")
+	case "inventory", "inv":
+		fmt.Println("=== Inventory ===")
+		for itemID, quantity := range Assets.Player.GetInventory() {
+			item := Assets.Items[itemID]
+			fmt.Printf("%s: %d\n", item.GetName(), quantity)
+		}
+		return false, nil
+	default:
+		return false, errors.New("Invalid command")
+	}
 }
