@@ -134,11 +134,12 @@ func run(ctx context.Context, cancel context.CancelFunc) int {
 							Name:   charName,
 						})
 						inventory := make(map[int32]int32)
-						player, err := models.NewPlayer(dbPlayer.ID, dbPlayer.Name, dbPlayer.CurrentExp.Int32, dbPlayer.CurrentLevel.Int32, dbPlayer.Gold.Int32, inventory)
+						player, err := models.NewPlayer(dbPlayer.ID, dbPlayer.Name, dbPlayer.CurrentExp, dbPlayer.CurrentLevel, dbPlayer.Gold, inventory)
 						if err != nil {
 							log.Fatal(err)
 						}
 						Assets.Player = player
+						Assets.ID = dbPlayer.ID
 						break
 					}
 					if err := scanner.Err(); err != nil {
@@ -161,11 +162,12 @@ func run(ctx context.Context, cancel context.CancelFunc) int {
 					inventory[dbInventoryItem.ItemID] = dbInventoryItem.Quantity
 				}
 
-				player, err := models.NewPlayer(dbPlayer.ID, dbPlayer.Name, dbPlayer.CurrentExp.Int32, dbPlayer.CurrentLevel.Int32, dbPlayer.Gold.Int32, inventory)
+				player, err := models.NewPlayer(dbPlayer.ID, dbPlayer.Name, dbPlayer.CurrentExp, dbPlayer.CurrentLevel, dbPlayer.Gold, inventory)
 				if err != nil {
 					log.Fatal(err)
 				}
 				Assets.Player = player
+				Assets.ID = dbPlayer.ID
 				break
 			}
 		}
@@ -193,6 +195,10 @@ func run(ctx context.Context, cancel context.CancelFunc) int {
 		if err := scanner.Err(); err != nil {
 			log.Fatal(err)
 		}
+	}
+	err = savePlayer(ctx)
+	if err != nil {
+		log.Fatal(err)
 	}
 	ctx.Done()
 	_, cancel = context.WithTimeout(context.Background(), 5*time.Second)
@@ -256,4 +262,31 @@ func parseCommand(cmd string) (bool, error) {
 	default:
 		return false, errors.New("Invalid command")
 	}
+}
+
+func savePlayer(ctx context.Context) error {
+	err := Cfg.DBQueries.UpdatePlayerByID(ctx, database.UpdatePlayerByIDParams{
+		ID:           Assets.ID,
+		CurrentExp:   Assets.Player.GetCurrentExp(),
+		CurrentLevel: Assets.Player.GetLevel(),
+		Gold:         Assets.Player.GetLevel(),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to save player: %v\n", err)
+	}
+	err = Cfg.DBQueries.DeleteInventoryItemByPlayerID(ctx, Assets.ID)
+	if err != nil {
+		return fmt.Errorf("failed to delete inventory for player: %v\n", err)
+	}
+	for itemID, quantity := range Assets.Player.GetInventory() {
+		err = Cfg.DBQueries.CreateInventoryItem(ctx, database.CreateInventoryItemParams{
+			ItemID:   itemID,
+			PlayerID: Assets.ID,
+			Quantity: quantity,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to save inventory: %v\n", err)
+		}
+	}
+	return nil
 }

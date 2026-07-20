@@ -6,6 +6,6 @@ VALUES ($1, $2, $3);
 SELECT * FROM inventory
 WHERE player_id = $1;
 
--- name: DeleteInventoryItem :exec
+-- name: DeleteInventoryItemByPlayerID :exec
 DELETE FROM inventory
-WHERE item_id = $1 AND player_id = $2;
+WHERE player_id = $1;

@@ -34,9 +34,9 @@ type ItemCategory struct {
 type Player struct {
 	ID           uuid.UUID
 	Name         string
-	CurrentExp   pgtype.Int4
-	CurrentLevel pgtype.Int4
-	Gold         pgtype.Int4
+	CurrentExp   int32
+	CurrentLevel int32
+	Gold         int32
 	CreatedAt    pgtype.Timestamptz
 	UpdatedAt    pgtype.Timestamptz
 	UserID       uuid.UUID

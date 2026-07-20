@@ -9,7 +9,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createPlayer = `-- name: CreatePlayer :one
@@ -108,9 +107,9 @@ WHERE id = $1
 
 type UpdatePlayerByIDParams struct {
 	ID           uuid.UUID
-	CurrentExp   pgtype.Int4
-	CurrentLevel pgtype.Int4
-	Gold         pgtype.Int4
+	CurrentExp   int32
+	CurrentLevel int32
+	Gold         int32
 }
 
 func (q *Queries) UpdatePlayerByID(ctx context.Context, arg UpdatePlayerByIDParams) error {

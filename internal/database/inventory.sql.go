@@ -27,18 +27,13 @@ func (q *Queries) CreateInventoryItem(ctx context.Context, arg CreateInventoryIt
 	return err
 }
 
-const deleteInventoryItem = `-- name: DeleteInventoryItem :exec
+const deleteInventoryItemByPlayerID = `-- name: DeleteInventoryItemByPlayerID :exec
 DELETE FROM inventory
-WHERE item_id = $1 AND player_id = $2
+WHERE player_id = $1
 `
 
-type DeleteInventoryItemParams struct {
-	ItemID   int32
-	PlayerID uuid.UUID
-}
-
-func (q *Queries) DeleteInventoryItem(ctx context.Context, arg DeleteInventoryItemParams) error {
-	_, err := q.db.Exec(ctx, deleteInventoryItem, arg.ItemID, arg.PlayerID)
+func (q *Queries) DeleteInventoryItemByPlayerID(ctx context.Context, playerID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteInventoryItemByPlayerID, playerID)
 	return err
 }
 
