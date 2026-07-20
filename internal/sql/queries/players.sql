@@ -1,7 +1,7 @@
 -- name: CreatePlayer :one
 INSERT INTO players (name, user_id)
 VALUES ($2, $1)
-RETURNING *;
+RETURNING id;
 
 -- name: GetPlayersByUserID :many
 SELECT id, name FROM players

@@ -14,7 +14,7 @@ import (
 const createPlayer = `-- name: CreatePlayer :one
 INSERT INTO players (name, user_id)
 VALUES ($2, $1)
-RETURNING id, name, current_exp, current_level, gold, created_at, updated_at, user_id
+RETURNING id
 `
 
 type CreatePlayerParams struct {
@@ -22,20 +22,11 @@ type CreatePlayerParams struct {
 	Name   string
 }
 
-func (q *Queries) CreatePlayer(ctx context.Context, arg CreatePlayerParams) (Player, error) {
+func (q *Queries) CreatePlayer(ctx context.Context, arg CreatePlayerParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, createPlayer, arg.UserID, arg.Name)
-	var i Player
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.CurrentExp,
-		&i.CurrentLevel,
-		&i.Gold,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.UserID,
-	)
-	return i, err
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
 }
 
 const deletePlayersByID = `-- name: DeletePlayersByID :exec
