@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -284,4 +285,17 @@ func (p *Player) SetLocation(location int32) error {
 	}
 	p.location = location
 	return nil
+}
+
+// Display Stats
+func (p *Player) DisplayStats() {
+	fmt.Println("\n==== Player Stat ====")
+	fmt.Printf(" Level: %d\n", p.GetLevel())
+	fmt.Printf(" Exp: %d/1000\n", p.GetCurrentExp())
+	fmt.Printf(" Health: %d/%d\n", p.GetCurrentHealth(), p.GetMaxHealth())
+	fmt.Printf(" Mana: %d/%d\n", p.GetCurrentMana(), p.GetMaxMana())
+	fmt.Printf(" Strength: %d\n", p.GetStrength())
+	fmt.Printf(" Defense: %d\n", p.GetDefense())
+	fmt.Printf(" Gold: %d\n", p.GetGold())
+	fmt.Println()
 }

@@ -1,20 +1,26 @@
 package models
 
+import "errors"
+
 type Location struct {
 	id          int32
 	name        string
 	description string
 	hasStore    bool
 	canTeleport bool
-	directions  []LocationDirection
+	directions  []*LocationDirection
 }
 
-type LocationDirection struct {
-	Direction        string
-	TargetLocationID int32
-}
-
-func CreateLocation(id int32, name, description string, has_store, can_teleport bool, directions []LocationDirection) (*Location, error) {
+func CreateLocation(id int32, name, description string, has_store, can_teleport bool, directions []*LocationDirection) (*Location, error) {
+	if id < 1 {
+		return nil, errors.New("invalid location id")
+	}
+	if name == "" {
+		return nil, errors.New("invalid location name")
+	}
+	if description == "" {
+		return nil, errors.New("invalid location description")
+	}
 	location := Location{
 		id:          id,
 		name:        name,
@@ -46,6 +52,6 @@ func (l *Location) CanTeleport() bool {
 	return l.canTeleport
 }
 
-func (l *Location) GetDirections() []LocationDirection {
+func (l *Location) GetDirections() []*LocationDirection {
 	return l.directions
 }

@@ -151,17 +151,17 @@ func parseCommand(cmd string) (bool, error) {
 			return false, errors.New("Go where?")
 		} else {
 			for _, direction := range Assets.Locations[Assets.Player.GetLocation()].GetDirections() {
-				if direction.Direction == parts[1] {
-					fmt.Printf("Moving to %s...\n", Assets.Locations[direction.TargetLocationID].GetName())
-					Assets.Player.SetLocation(direction.TargetLocationID)
-					Look()
+				if direction.GetDirection() == parts[1] {
+					fmt.Printf("Moving to %s...\n", Assets.Locations[direction.GetLocationID()].GetName())
+					Assets.Player.SetLocation(direction.GetLocationID())
+					look()
 					return false, nil
 				}
 			}
 			return false, errors.New("Invalid Direction.")
 		}
 	case "look":
-		Look()
+		look()
 		return false, nil
 	case "inventory", "inv":
 		fmt.Println("\n=== Inventory ===")
@@ -171,7 +171,7 @@ func parseCommand(cmd string) (bool, error) {
 		}
 		return false, nil
 	case "stat":
-		displayStat()
+		Assets.Player.DisplayStats()
 		return false, nil
 	case "store":
 		fmt.Println("Store not implemented.")
@@ -207,4 +207,17 @@ func savePlayer(ctx context.Context) error {
 		}
 	}
 	return nil
+}
+
+func look() {
+	fmt.Println("\nYou look around...")
+	fmt.Printf("You are currently in %s.\n", Assets.Locations[Assets.Player.GetLocation()].GetName())
+	fmt.Println(Assets.Locations[Assets.Player.GetLocation()].GetDescription())
+	if Assets.Locations[Assets.Player.GetLocation()].HasStore() {
+		fmt.Println("You see a store in the corner.")
+	}
+	directions := Assets.Locations[Assets.Player.GetLocation()].GetDirections()
+	for _, direction := range directions {
+		fmt.Printf("You see %s to the %s.\n", Assets.Locations[direction.GetLocationID()].GetName(), direction.GetDirection())
+	}
 }

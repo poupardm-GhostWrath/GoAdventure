@@ -14,15 +14,15 @@ func InitializeLocations(dbQueries *database.Queries) (map[int32]*models.Locatio
 		return locations, err
 	}
 	for _, dbLocation := range dbLocations {
-		var directions []models.LocationDirection
+		var directions []*models.LocationDirection
 		dbDirections, err := dbQueries.GetLocationDirectionByID(context.Background(), dbLocation.ID)
 		if err != nil {
 			return locations, err
 		}
 		for _, dbDirection := range dbDirections {
-			direction := models.LocationDirection{
-				Direction:        dbDirection.Direction,
-				TargetLocationID: dbDirection.DirectionTarget,
+			direction, err := models.CreateLocationDirection(dbDirection.Direction, dbDirection.DirectionTarget)
+			if err != nil {
+				return locations, err
 			}
 			directions = append(directions, direction)
 		}

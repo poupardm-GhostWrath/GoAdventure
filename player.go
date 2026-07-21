@@ -121,15 +121,3 @@ func getPlayers(ctx context.Context, userID uuid.UUID) ([]player, error) {
 	}
 	return players, nil
 }
-
-func displayStat() {
-	fmt.Println("\n==== Player Stat ====")
-	fmt.Printf(" Level: %d\n", Assets.Player.GetLevel())
-	fmt.Printf(" Exp: %d/1000\n", Assets.Player.GetCurrentExp())
-	fmt.Printf(" Health: %d/%d\n", Assets.Player.GetCurrentHealth(), Assets.Player.GetMaxHealth())
-	fmt.Printf(" Mana: %d/%d\n", Assets.Player.GetCurrentMana(), Assets.Player.GetMaxMana())
-	fmt.Printf(" Strength: %d\n", Assets.Player.GetStrength())
-	fmt.Printf(" Defense: %d\n", Assets.Player.GetDefense())
-	fmt.Printf(" Gold: %d\n", Assets.Player.GetGold())
-	fmt.Println()
-}
