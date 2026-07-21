@@ -77,7 +77,6 @@ func run(ctx context.Context, cancel context.CancelFunc) int {
 	}
 
 	fmt.Printf("\n======== Welcome %s =======\n", Assets.Player.GetName())
-	fmt.Println("You are in the Starting Town!")
 	fmt.Println("Notice: type 'exit' to exit.")
 	fmt.Println("Notice: type 'help' for help menu.")
 
@@ -151,19 +150,18 @@ func parseCommand(cmd string) (bool, error) {
 		if len(parts) < 2 {
 			return false, errors.New("Go where?")
 		} else {
-			return false, errors.New("Move feature not implemented.")
+			for _, direction := range Assets.Locations[Assets.Player.GetLocation()].GetDirections() {
+				if direction.Direction == parts[1] {
+					fmt.Printf("Moving to %s...\n", Assets.Locations[direction.TargetLocationID].GetName())
+					Assets.Player.SetLocation(direction.TargetLocationID)
+					Look()
+					return false, nil
+				}
+			}
+			return false, errors.New("Invalid Direction.")
 		}
 	case "look":
-		fmt.Println("\nYou look around...")
-		fmt.Printf("You are currently in %s.\n", Assets.Locations[Assets.Player.GetLocation()].GetName())
-		fmt.Println(Assets.Locations[Assets.Player.GetLocation()].GetDescription())
-		if Assets.Locations[Assets.Player.GetLocation()].HasStore() {
-			fmt.Println("You see a store in the corner.")
-		}
-		directions := Assets.Locations[Assets.Player.GetLocation()].GetDirections()
-		for _, direction := range directions {
-			fmt.Printf("You see %s to the %s.\n", Assets.Locations[direction.TargetLocationID].GetName(), direction.Direction)
-		}
+		Look()
 		return false, nil
 	case "inventory", "inv":
 		fmt.Println("\n=== Inventory ===")
@@ -174,6 +172,9 @@ func parseCommand(cmd string) (bool, error) {
 		return false, nil
 	case "stat":
 		displayStat()
+		return false, nil
+	case "store":
+		fmt.Println("Store not implemented.")
 		return false, nil
 	default:
 		return false, errors.New("Invalid command")
