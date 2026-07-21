@@ -17,5 +17,5 @@ WHERE id = $1;
 
 -- name: UpdatePlayerByID :exec
 UPDATE players
-SET current_exp = $2, current_level = $3, gold = $4, updated_at = NOW()
+SET current_exp = $2, current_level = $3, gold = $4, location_id = $5, updated_at = NOW()
 WHERE id = $1;

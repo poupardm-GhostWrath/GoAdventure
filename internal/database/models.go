@@ -31,6 +31,20 @@ type ItemCategory struct {
 	Name string
 }
 
+type Location struct {
+	ID          int32
+	Name        string
+	Description string
+	HasStore    bool
+	CanTeleport bool
+}
+
+type LocationDirection struct {
+	LocationID      int32
+	Direction       string
+	DirectionTarget int32
+}
+
 type Player struct {
 	ID           uuid.UUID
 	Name         string
@@ -40,6 +54,7 @@ type Player struct {
 	CreatedAt    pgtype.Timestamptz
 	UpdatedAt    pgtype.Timestamptz
 	UserID       uuid.UUID
+	LocationID   int32
 }
 
 type User struct {

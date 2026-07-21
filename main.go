@@ -44,8 +44,13 @@ func run(ctx context.Context, cancel context.CancelFunc) int {
 	if err != nil {
 		log.Fatal(err)
 	}
+	initLocations, err := initialization.InitializeLocations(Cfg.DBQueries)
+	if err != nil {
+		log.Fatal(err)
+	}
 	assets := config.GlobalAssets{
-		Items: initItems,
+		Items:     initItems,
+		Locations: initLocations,
 	}
 	Assets = &assets
 
@@ -77,7 +82,7 @@ func run(ctx context.Context, cancel context.CancelFunc) int {
 	fmt.Println("Notice: type 'help' for help menu.")
 
 	for {
-		fmt.Print("What would you like to do?: ")
+		fmt.Print("\nWhat would you like to do?: ")
 		if scanner.Scan() {
 			input := scanner.Text()
 			exit, err := parseCommand(input)
@@ -149,9 +154,19 @@ func parseCommand(cmd string) (bool, error) {
 			return false, errors.New("Move feature not implemented.")
 		}
 	case "look":
-		return false, errors.New("Look feature not implemented.")
+		fmt.Println("\nYou look around...")
+		fmt.Printf("You are currently in %s.\n", Assets.Locations[Assets.Player.GetLocation()].GetName())
+		fmt.Println(Assets.Locations[Assets.Player.GetLocation()].GetDescription())
+		if Assets.Locations[Assets.Player.GetLocation()].HasStore() {
+			fmt.Println("You see a store in the corner.")
+		}
+		directions := Assets.Locations[Assets.Player.GetLocation()].GetDirections()
+		for _, direction := range directions {
+			fmt.Printf("You see %s to the %s.\n", Assets.Locations[direction.TargetLocationID].GetName(), direction.Direction)
+		}
+		return false, nil
 	case "inventory", "inv":
-		fmt.Println("=== Inventory ===")
+		fmt.Println("\n=== Inventory ===")
 		for itemID, quantity := range Assets.Player.GetInventory() {
 			item := Assets.Items[itemID]
 			fmt.Printf("%s: %d\n", item.GetName(), quantity)
@@ -171,6 +186,7 @@ func savePlayer(ctx context.Context) error {
 		CurrentExp:   Assets.Player.GetCurrentExp(),
 		CurrentLevel: Assets.Player.GetLevel(),
 		Gold:         Assets.Player.GetLevel(),
+		LocationID:   Assets.Player.GetLocation(),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to save player: %v\n", err)

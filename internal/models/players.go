@@ -17,6 +17,7 @@ type Player struct {
 	buff      *Buff
 	inventory map[int32]int32
 	gold      int32
+	location  int32
 }
 
 type level struct {
@@ -45,7 +46,7 @@ type Buff struct {
 	expireAt time.Time
 }
 
-func NewPlayer(id uuid.UUID, name string, currentExp, currentLevel, gold int32, inventory map[int32]int32) (*Player, error) {
+func NewPlayer(id uuid.UUID, name string, currentExp, currentLevel, gold, location int32, inventory map[int32]int32) (*Player, error) {
 	var uuidNil uuid.UUID
 	if id == uuidNil {
 		return nil, errors.New("invalid id")
@@ -81,6 +82,9 @@ func NewPlayer(id uuid.UUID, name string, currentExp, currentLevel, gold int32, 
 
 	// Set Gold
 	player.gold = max(gold, 0)
+
+	// Set Location
+	player.location = location
 
 	return &player, nil
 }
@@ -266,5 +270,18 @@ func (p *Player) RemoveGold(amount int32) error {
 		return errors.New("not enough gold")
 	}
 	p.gold -= amount
+	return nil
+}
+
+// Location Functions
+func (p *Player) GetLocation() int32 {
+	return p.location
+}
+
+func (p *Player) SetLocation(location int32) error {
+	if location < 1 {
+		return errors.New("invalid location")
+	}
+	p.location = location
 	return nil
 }

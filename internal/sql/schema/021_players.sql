@@ -1,0 +1,2 @@
+ALTER TABLE players
+ADD COLUMN location_id INTEGER NOT NULL DEFAULT 1 REFERENCES locations(id);

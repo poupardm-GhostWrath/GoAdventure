@@ -17,7 +17,8 @@ type GlobalConfig struct {
 }
 
 type GlobalAssets struct {
-	ID     uuid.UUID
-	Player *models.Player
-	Items  map[int32]*models.Item
+	ID        uuid.UUID
+	Player    *models.Player
+	Items     map[int32]*models.Item
+	Locations map[int32]*models.Location
 }
