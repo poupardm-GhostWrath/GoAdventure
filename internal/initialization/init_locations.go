@@ -8,7 +8,7 @@ import (
 )
 
 func InitializeLocations(dbQueries *database.Queries) (map[int32]*models.Location, error) {
-	locations := make(map[int32]*models.Location)
+	var locations = make(map[int32]*models.Location)
 	dbLocations, err := dbQueries.GetLocations(context.Background())
 	if err != nil {
 		return locations, err
