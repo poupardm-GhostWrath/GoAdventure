@@ -226,6 +226,9 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 		Assets.Player.DisplayStats()
 		return false, nil
 	case "store":
+		if !Assets.Locations[Assets.Player.GetLocation()].HasStore() {
+			return false, errors.New("This area doesn't have a store.")
+		}
 		err := store(scanner)
 		if err != nil {
 			return false, err
