@@ -19,6 +19,7 @@ import (
 	"github.com/poupardm-GhostWrath/GoAdventure/internal/database"
 	"github.com/poupardm-GhostWrath/GoAdventure/internal/development"
 	"github.com/poupardm-GhostWrath/GoAdventure/internal/initialization"
+	"github.com/poupardm-GhostWrath/GoAdventure/internal/models"
 )
 
 var Cfg *config.GlobalConfig
@@ -52,9 +53,14 @@ func run(ctx context.Context, cancel context.CancelFunc) int {
 	if err != nil {
 		log.Fatal(err)
 	}
+	initStores, err := initialization.InitializeStore(initItems, initLocations)
+	if err != nil {
+		log.Fatal(err)
+	}
 	assets := config.GlobalAssets{
 		Items:     initItems,
 		Locations: initLocations,
+		Stores:    initStores,
 	}
 	Assets = &assets
 
@@ -128,7 +134,7 @@ outer:
 		fmt.Print("\nWhat would you like to do?: ")
 		if scanner.Scan() {
 			input := scanner.Text()
-			exit, err := parseCommand(input)
+			exit, err := parseCommand(scanner, input)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -150,7 +156,7 @@ outer:
 	return 0
 }
 
-func parseCommand(cmd string) (bool, error) {
+func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 	parts := strings.Split(strings.ToLower(strings.TrimSpace(cmd)), " ")
 
 	if len(parts) == 0 {
@@ -187,6 +193,8 @@ func parseCommand(cmd string) (bool, error) {
 +-------------+-------------------+
 | Stat        |	stat              |
 +-------------+-------------------+
+| Store       | store             |
++-------------+-------------------+
 `
 		fmt.Println(help_menu)
 		return false, nil
@@ -218,7 +226,10 @@ func parseCommand(cmd string) (bool, error) {
 		Assets.Player.DisplayStats()
 		return false, nil
 	case "store":
-		fmt.Println("Store not implemented.")
+		err := store(scanner)
+		if err != nil {
+			return false, err
+		}
 		return false, nil
 	default:
 		return false, errors.New("Invalid command")
@@ -263,5 +274,61 @@ func look() {
 	directions := Assets.Locations[Assets.Player.GetLocation()].GetDirections()
 	for _, direction := range directions {
 		fmt.Printf("You see %s to the %s.\n", Assets.Locations[direction.GetLocationID()].GetName(), direction.GetDirection())
+	}
+}
+
+func store(scanner *bufio.Scanner) error {
+	store := Assets.Stores[Assets.Player.GetLocation()]
+	fmt.Printf("\n=== %s ===\n", store.GetName())
+	fmt.Println(" 1. Check Store Inventory")
+	fmt.Println(" 2. Check Player Inventory")
+	fmt.Println(" 3. Buy Item")
+	fmt.Println(" 4. Sell Item")
+	fmt.Println(" 5. Exit")
+outer:
+	for {
+		fmt.Print(" Choice: ")
+		if scanner.Scan() {
+			input, err := strconv.ParseInt(scanner.Text(), 10, 32)
+			if err != nil {
+				fmt.Println("Invalid choice. Please try again.")
+				continue
+			}
+			switch input {
+			case 1:
+				displayInventory(store)
+			case 2:
+				displayInventory(Assets.Player)
+			case 3:
+				fmt.Println("Feature not implemented.")
+			case 4:
+				fmt.Println("Feature not implemented.")
+			case 5:
+				break outer
+			default:
+				fmt.Println("Invalid choice. Please try again.")
+			}
+		}
+		if err := scanner.Err(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func displayInventory(t any) {
+	switch v := t.(type) {
+	case *models.Store:
+		fmt.Printf("\n=== %s Inventory ===\n", v.GetName())
+		for itemID, quantity := range v.GetInventory() {
+			fmt.Printf(" %s: %d\n", Assets.Items[itemID].GetName(), quantity)
+		}
+	case *models.Player:
+		fmt.Printf("\n=== %s Inventory ===\n", v.GetName())
+		for itemID, quantity := range v.GetInventory() {
+			fmt.Printf(" %s: %d\n", Assets.Items[itemID].GetName(), quantity)
+		}
+	default:
+		return
 	}
 }
