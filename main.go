@@ -282,14 +282,16 @@ func look() {
 
 func store(scanner *bufio.Scanner) error {
 	store := Assets.Stores[Assets.Player.GetLocation()]
-	fmt.Printf("\n=== %s ===\n", store.GetName())
-	fmt.Println(" 1. Check Store Inventory")
-	fmt.Println(" 2. Check Player Inventory")
-	fmt.Println(" 3. Buy Item")
-	fmt.Println(" 4. Sell Item")
-	fmt.Println(" 5. Exit")
+	fmt.Printf("\n=== %s ===", store.GetName())
+
 outer:
 	for {
+		fmt.Println()
+		fmt.Println(" 1. Check Store Inventory")
+		fmt.Println(" 2. Check Player Inventory")
+		fmt.Println(" 3. Buy Item")
+		fmt.Println(" 4. Sell Item")
+		fmt.Println(" 5. Exit")
 		fmt.Print(" Choice: ")
 		if scanner.Scan() {
 			input, err := strconv.ParseInt(scanner.Text(), 10, 32)
