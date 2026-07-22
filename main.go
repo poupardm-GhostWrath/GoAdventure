@@ -8,12 +8,16 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/poupardm-GhostWrath/GoAdventure/internal/auth"
 	"github.com/poupardm-GhostWrath/GoAdventure/internal/config"
 	"github.com/poupardm-GhostWrath/GoAdventure/internal/database"
+	"github.com/poupardm-GhostWrath/GoAdventure/internal/development"
 	"github.com/poupardm-GhostWrath/GoAdventure/internal/initialization"
 )
 
@@ -55,16 +59,56 @@ func run(ctx context.Context, cancel context.CancelFunc) int {
 	Assets = &assets
 
 	// Create Test User
-	err = createTestUser(ctx)
-	if err != nil {
-		log.Fatal(err)
+	if Cfg.ENV == "development" {
+		err = development.CreateTestUser(ctx, Cfg.DBQueries)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	// Login
 	scanner := bufio.NewScanner(os.Stdin)
-	userID, err := login(ctx, scanner)
-	if err != nil {
-		log.Fatal(err)
+	var userID uuid.UUID
+	fmt.Println("\n=== GoAdventure ===")
+	fmt.Println(" 1. Login")
+	fmt.Println(" 2. Register")
+	fmt.Println(" 3. Exit")
+outer:
+	for {
+		fmt.Print(" Choice: ")
+		if scanner.Scan() {
+			input, err := strconv.ParseInt(scanner.Text(), 10, 32)
+			if err != nil {
+				fmt.Println("Invalid choice. Please try again.")
+				continue
+			}
+			switch input {
+			case 1:
+				userID, err = auth.Login(ctx, Cfg.DBQueries, scanner)
+				if err != nil {
+					log.Fatal(err)
+				}
+				break outer
+			case 2:
+				err = auth.Register(ctx, Cfg.DBQueries, scanner)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Println("Registration successful!")
+				userID, err = auth.Login(ctx, Cfg.DBQueries, scanner)
+				if err != nil {
+					log.Fatal(err)
+				}
+				break outer
+			case 3:
+				return 0
+			default:
+				fmt.Println("Invalid choice. Please try again.")
+			}
+		}
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	// Get Player

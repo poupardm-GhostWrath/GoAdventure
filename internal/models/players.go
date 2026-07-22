@@ -16,7 +16,7 @@ type Player struct {
 	mana      mana
 	stat      stat
 	buff      *Buff
-	inventory map[int32]int32
+	inventory map[int32]int32 // map[itemID]quantity
 	gold      int32
 	location  int32
 }
@@ -47,7 +47,8 @@ type Buff struct {
 	expireAt time.Time
 }
 
-func NewPlayer(id uuid.UUID, name string, currentExp, currentLevel, gold, location int32, inventory map[int32]int32) (*Player, error) {
+// Initialization
+func InitPlayer(id uuid.UUID, name string, currentExp, currentLevel, gold, location int32, inventory map[int32]int32) (*Player, error) {
 	var uuidNil uuid.UUID
 	if id == uuidNil {
 		return nil, errors.New("invalid id")
@@ -90,6 +91,7 @@ func NewPlayer(id uuid.UUID, name string, currentExp, currentLevel, gold, locati
 	return &player, nil
 }
 
+// Name Function
 func (p *Player) GetName() string {
 	return p.name
 }
