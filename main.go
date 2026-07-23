@@ -189,8 +189,6 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 | Inventory   | inventory         |
 |             | inv               |
 +-------------+-------------------+
-| Take        | take              |
-+-------------+-------------------+
 | Stat        |	stat              |
 +-------------+-------------------+
 | Store       | store             |
