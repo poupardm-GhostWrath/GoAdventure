@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/rand/v2"
 	"os"
 	"os/signal"
 	"strconv"
@@ -214,11 +215,7 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 		look()
 		return false, nil
 	case "inventory", "inv":
-		fmt.Println("\n=== Inventory ===")
-		for itemID, quantity := range Assets.Player.GetInventory() {
-			item := Assets.Items[itemID]
-			fmt.Printf("%s: %d\n", item.GetName(), quantity)
-		}
+		displayInventory(Assets.Player)
 		return false, nil
 	case "stat":
 		Assets.Player.DisplayStats()
@@ -328,10 +325,27 @@ func displayInventory(t any) {
 		}
 	case *models.Player:
 		fmt.Printf("\n=== %s Inventory ===\n", v.GetName())
+		if len(v.GetInventory()) == 0 {
+			fmt.Println("Your inventory is empty...")
+			if generateJoke() {
+				time.Sleep(2 * time.Second)
+				fmt.Println("Wait!")
+				time.Sleep(5 * time.Second)
+				fmt.Println("Never mind still empty...")
+			}
+		}
 		for itemID, quantity := range v.GetInventory() {
 			fmt.Printf(" %s: %d\n", Assets.Items[itemID].GetName(), quantity)
 		}
 	default:
 		return
 	}
+}
+
+func generateJoke() bool {
+	randNum := rand.IntN(100) + 1
+	if randNum < 26 {
+		return true
+	}
+	return false
 }
