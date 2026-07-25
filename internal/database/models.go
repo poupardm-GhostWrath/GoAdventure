@@ -9,6 +9,12 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Enemy struct {
+	ID    int32
+	Name  string
+	Level int32
+}
+
 type Inventory struct {
 	ItemID   int32
 	PlayerID uuid.UUID
