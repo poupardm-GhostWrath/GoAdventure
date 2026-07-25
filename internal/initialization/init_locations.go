@@ -28,6 +28,8 @@ func InitializeLocations(dbQueries *database.Queries) (map[int32]*models.Locatio
 		}
 		location, err := models.CreateLocation(
 			dbLocation.ID,
+			dbLocation.MinLevel,
+			dbLocation.MaxLevel,
 			dbLocation.Name,
 			dbLocation.Description,
 			dbLocation.HasStore,

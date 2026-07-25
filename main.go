@@ -53,10 +53,21 @@ func run(ctx context.Context, cancel context.CancelFunc) int {
 	if err != nil {
 		log.Fatal(err)
 	}
+	initEnemies, err := initialization.InitializeEnemies(Cfg.DBQueries)
+	if err != nil {
+		log.Fatal(err)
+	}
+	initEnemiesLocation, err := initialization.InitializeEnemiesLocation(initEnemies, initLocations)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	assets := config.GlobalAssets{
-		Items:     initItems,
-		Locations: initLocations,
-		Stores:    initStores,
+		Items:           initItems,
+		Locations:       initLocations,
+		Stores:          initStores,
+		Enemies:         initEnemies,
+		EnemiesLocation: initEnemiesLocation,
 	}
 	Assets = &assets
 
@@ -71,7 +82,7 @@ func run(ctx context.Context, cancel context.CancelFunc) int {
 	// Login
 	scanner := bufio.NewScanner(os.Stdin)
 	var userID uuid.UUID
-	fmt.Println("\n=== GoAdventure ===")
+	fmt.Println("\n=== Go Adventure ===")
 	fmt.Println(" 1. Login")
 	fmt.Println(" 2. Register")
 	fmt.Println(" 3. Exit")

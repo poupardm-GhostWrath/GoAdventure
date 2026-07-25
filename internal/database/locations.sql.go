@@ -10,7 +10,7 @@ import (
 )
 
 const getLocations = `-- name: GetLocations :many
-SELECT id, name, description, has_store, can_teleport FROM locations
+SELECT id, name, description, min_level, max_level, has_store, can_teleport FROM locations
 `
 
 func (q *Queries) GetLocations(ctx context.Context) ([]Location, error) {
@@ -26,6 +26,8 @@ func (q *Queries) GetLocations(ctx context.Context) ([]Location, error) {
 			&i.ID,
 			&i.Name,
 			&i.Description,
+			&i.MinLevel,
+			&i.MaxLevel,
 			&i.HasStore,
 			&i.CanTeleport,
 		); err != nil {

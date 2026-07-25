@@ -17,9 +17,11 @@ type GlobalConfig struct {
 }
 
 type GlobalAssets struct {
-	ID        uuid.UUID
-	Player    *models.Player
-	Items     map[int32]*models.Item     // map[itemID]*models.Item
-	Locations map[int32]*models.Location // map[locationID]*models.Location
-	Stores    map[int32]*models.Store    // map[locationID]*models.Store
+	ID              uuid.UUID
+	Player          *models.Player
+	Items           map[int32]*models.Item     // map[itemID]*models.Item
+	Locations       map[int32]*models.Location // map[locationID]*models.Location
+	Stores          map[int32]*models.Store    // map[locationID]*models.Store
+	Enemies         map[int32]*models.Enemy    // map[enemyID]*models.Enemy
+	EnemiesLocation map[int32]map[int32]int32  // map[locationID]map[enemyID]quantity
 }

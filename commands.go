@@ -123,12 +123,24 @@ func look() {
 	fmt.Println("\nYou look around...")
 	fmt.Printf("You are currently in %s.\n", Assets.Locations[Assets.Player.GetLocation()].GetName())
 	fmt.Println(Assets.Locations[Assets.Player.GetLocation()].GetDescription())
-	if Assets.Locations[Assets.Player.GetLocation()].HasStore() {
-		fmt.Println("You see a store in the corner.")
-	}
 	directions := Assets.Locations[Assets.Player.GetLocation()].GetDirections()
 	for _, direction := range directions {
 		fmt.Printf("You see %s to the %s.\n", Assets.Locations[direction.GetLocationID()].GetName(), direction.GetDirection())
+	}
+	if Assets.Locations[Assets.Player.GetLocation()].HasStore() {
+		fmt.Println("You see a store in the corner.")
+	} else {
+		fmt.Println("Enemies:")
+		if len(Assets.EnemiesLocation[Assets.Player.GetLocation()]) != 0 {
+			for enemyID, quantity := range Assets.EnemiesLocation[Assets.Player.GetLocation()] {
+				fmt.Printf("You see %d %s.\n", quantity, Assets.Enemies[enemyID].GetName())
+			}
+		} else {
+			fmt.Println("You don't see any enemies.")
+			if generateJoke() {
+				fmt.Println("When is the last time you took a bath...")
+			}
+		}
 	}
 }
 

@@ -41,6 +41,8 @@ type Location struct {
 	ID          int32
 	Name        string
 	Description string
+	MinLevel    int32
+	MaxLevel    int32
 	HasStore    bool
 	CanTeleport bool
 }
