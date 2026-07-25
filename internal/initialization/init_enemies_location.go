@@ -17,9 +17,9 @@ func InitializeEnemiesLocation(enemies map[int32]*models.Enemy, locations map[in
 			for _, enemy := range enemies {
 				// Check if enemy level is valid for location
 				if enemy.GetLevel() >= location.GetMinLevel() && enemy.GetLevel() <= location.GetMaxLevel() {
-					// Randomize if enemy swap
+					// Randomize if enemy spawn
 					randNum := rand.IntN(100) + 1
-					if randNum >= 50 {
+					if randNum >= 25 {
 						// Randomize enemy quantity
 						amountNum := rand.IntN(5) + 1
 						enemiesList[enemy.GetID()] = int32(amountNum)
