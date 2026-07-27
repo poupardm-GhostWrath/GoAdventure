@@ -86,6 +86,63 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 			return false, err
 		}
 		return false, nil
+	case "eat":
+		if len(parts) < 2 {
+			return false, errors.New("usage: eat <item name>")
+		}
+		var itemName string
+		if len(parts) > 2 {
+			itemName = strings.Join(parts[1:], " ")
+		}
+		var itemID int32
+		for key, item := range Assets.Items {
+			if strings.ToLower(item.GetName()) == itemName {
+				itemID = key
+				break
+			}
+		}
+		err := Assets.Player.EatFood(Assets.Items, itemID)
+		if err != nil {
+			return false, err
+		}
+		return false, nil
+	case "test":
+		if Cfg.ENV == "development" {
+			if len(parts) < 2 {
+				return false, errors.New("usage: test <target> [itemID] [amount]")
+			}
+			var amount int32 = 1
+			switch parts[1] {
+			case "gold":
+				if len(parts) > 2 {
+					num, err := strconv.ParseInt(parts[2], 10, 32)
+					if err != nil {
+						return false, err
+					}
+					amount = int32(num)
+				}
+				Assets.Player.AddGold(int32(amount))
+				fmt.Printf("Added %d gold.\n", amount)
+			case "item":
+				if len(parts) < 3 {
+					return false, errors.New("usage: test item <itemID> [amount]")
+				}
+				if len(parts) > 3 {
+					num, err := strconv.ParseInt(parts[3], 10, 32)
+					if err != nil {
+						return false, err
+					}
+					amount = int32(num)
+				}
+				itemID, err := strconv.ParseInt(parts[2], 10, 32)
+				if err != nil {
+					return false, err
+				}
+				Assets.Player.AddItem(int32(itemID), int32(amount))
+				fmt.Printf("Added %d %s.\n", amount, Assets.Items[int32(itemID)].GetName())
+			}
+		}
+		return false, nil
 	default:
 		return false, errors.New("Invalid command")
 	}

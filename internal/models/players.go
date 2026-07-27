@@ -186,26 +186,75 @@ func (p *Player) UseMana(amount int32) error {
 
 // Stat Functions
 func (p *Player) GetStrength() int32 {
-	return p.stat.strength
+	var buffValue int32 = 0
+	if p.buff != nil && p.buff.target == "Strength" {
+		buffValue = p.buff.value
+	}
+	return p.stat.strength + buffValue
 }
 
 func (p *Player) GetDefense() int32 {
-	return p.stat.defense
+	var buffValue int32 = 0
+	if p.buff != nil && p.buff.target == "Defense" {
+		buffValue = p.buff.value
+	}
+	return p.stat.defense + buffValue
 }
 
 // Buff Functions
 func (p *Player) GetBuff() (*Buff, error) {
 	if p.buff == nil || time.Now().UTC().After(p.buff.expireAt) {
+		switch p.buff.target {
+		case "Health":
+			p.health.maxHealth -= p.buff.value
+			if p.health.currentHealth > p.health.maxHealth {
+				p.health.currentHealth = p.health.maxHealth
+			}
+		case "Mana":
+			p.mana.maxMana -= p.buff.value
+			if p.mana.currentMana > p.mana.maxMana {
+				p.mana.currentMana = p.mana.maxMana
+			}
+		}
+		p.buff = nil
 		return nil, errors.New("no active buff")
 	}
 	return p.buff, nil
 }
 
-func (p *Player) AddBuff(buff *Buff) error {
-	if buff == nil {
-		return errors.New("invalid buff")
+func (p *Player) EatFood(itemList map[int32]*Item, itemID int32) error {
+	if itemID < 1 {
+		return errors.New("invalid item ID")
 	}
-	p.buff = buff
+	if itemList[itemID].category != "Meal" {
+		return errors.New("item is not a food item.")
+	}
+	quantity, ok := p.inventory[itemID]
+	if !ok {
+		return errors.New("you don't have that item")
+	}
+	item := itemList[itemID]
+	buff := Buff{
+		target:   item.GetEffect().Target,
+		value:    item.GetEffect().Value,
+		expireAt: time.Now().UTC().Add(30 * time.Minute),
+	}
+	p.buff = &buff
+	if quantity == 1 {
+		delete(p.inventory, itemID)
+	} else {
+		p.inventory[itemID] -= 1
+	}
+	switch buff.target {
+	case "Health":
+		p.health.maxHealth += buff.value
+		p.health.currentHealth += buff.value
+	case "Mana":
+		p.mana.maxMana += buff.value
+		p.mana.currentMana += buff.value
+	}
+	fmt.Printf("You ate %s.\n", item.GetName())
+	fmt.Printf("Your %s was increase by %d for 30 minutes.\n", buff.target, buff.value)
 	return nil
 }
 
