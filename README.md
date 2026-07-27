@@ -70,13 +70,14 @@ Starting the game (This will build the game and start it):
 ### 📖 Usage
 
 Available commands:
-- **'exit'** or **'quit'** - Exit the game
-- **'help'** - Displays the help menu
-- **'stat'** - Displays your stats
-- **'inv'** or 'inventory' - Displays your inventory
-- **'look'** - Displays information about your surrounding
+- **'exit'** or **'quit'** - Exit the game.
+- **'help'** - Displays the help menu.
+- **'stat'** - Displays your stats.
+- **'inv'** or 'inventory' - Displays your inventory.
+- **'look'** - Displays information about your surrounding.
 - **'move *\<direction>*'** - Moves you to the location in the direction specified.
 - **'store'** - Enters the store that are available in towns.
+- **'eat *\<food name>*'** - Eat food to get a buff.
 
 ## 🤝 Contributing
 
