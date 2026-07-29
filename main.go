@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"os/signal"
+	"runtime"
 	"strconv"
 	"syscall"
 	"time"
@@ -133,7 +135,9 @@ outer:
 		return 0
 	}
 
-	fmt.Printf("\n======== Welcome %s =======\n", Assets.Player.GetName())
+	ClearScreen()
+
+	fmt.Printf("======== Welcome %s =======\n", Assets.Player.GetName())
 	fmt.Println("Notice: type 'exit' to exit.")
 	fmt.Println("Notice: type 'help' for help menu.")
 
@@ -161,4 +165,16 @@ outer:
 	_, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	return 0
+}
+
+func ClearScreen() {
+	if runtime.GOOS == "windows" {
+		cmd := exec.Command("cmd", "/c", "cls")
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	} else {
+		cmd := exec.Command("clear")
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	}
 }
