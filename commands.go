@@ -12,6 +12,8 @@ import (
 
 	"github.com/poupardm-GhostWrath/GoAdventure/internal/database"
 	"github.com/poupardm-GhostWrath/GoAdventure/internal/models"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
@@ -153,7 +155,7 @@ func savePlayer(ctx context.Context) error {
 		ID:           Assets.ID,
 		CurrentExp:   Assets.Player.GetCurrentExp(),
 		CurrentLevel: Assets.Player.GetLevel(),
-		Gold:         Assets.Player.GetLevel(),
+		Gold:         Assets.Player.GetGold(),
 		LocationID:   Assets.Player.GetLocation(),
 	})
 	if err != nil {
@@ -203,36 +205,101 @@ func look() {
 
 func store(scanner *bufio.Scanner) error {
 	store := Assets.Stores[Assets.Player.GetLocation()]
-	fmt.Printf("\n=== %s ===", store.GetName())
-
+	fmt.Println("\n=== Store ===")
+	fmt.Printf("Welcome to %s!\n", store.GetName())
+	fmt.Println("What can I get you today?")
+	store.RefreshStore(Assets.Items)
 outer:
 	for {
 		fmt.Println()
-		fmt.Println(" 1. Check Store Inventory")
-		fmt.Println(" 2. Check Player Inventory")
-		fmt.Println(" 3. Buy Item")
-		fmt.Println(" 4. Sell Item")
-		fmt.Println(" 5. Exit")
-		fmt.Print(" Choice: ")
+		fmt.Print("What are we doing?> ")
 		if scanner.Scan() {
-			input, err := strconv.ParseInt(scanner.Text(), 10, 32)
-			if err != nil {
-				fmt.Println("Invalid choice. Please try again.")
-				continue
-			}
-			switch input {
-			case 1:
-				displayInventory(store)
-			case 2:
-				displayInventory(Assets.Player)
-			case 3:
-				fmt.Println("Feature not implemented.")
-			case 4:
-				fmt.Println("Feature not implemented.")
-			case 5:
+			input := scanner.Text()
+			parts := strings.Split(strings.ToLower(strings.TrimSpace(input)), " ")
+			switch parts[0] {
+			case "inv":
+				if len(parts) > 1 {
+					if parts[1] == "store" {
+						displayInventory(store)
+					} else {
+						displayInventory(Assets.Player)
+					}
+				} else {
+					displayInventory(Assets.Player)
+				}
+			case "buy":
+				if len(parts) < 3 {
+					fmt.Println("I'm sorry. What are you trying to buy exactly and how much?")
+					continue
+				}
+				quantity, err := strconv.ParseInt(parts[len(parts)-1], 10, 32)
+				if err != nil || quantity < 1 {
+					fmt.Println("Sorry. How many did you want to buy?")
+					continue
+				}
+				itemName := strings.Join(parts[1:len(parts)-1], " ")
+				itemFound := false
+				for key, item := range Assets.Items {
+					if strings.ToLower(item.GetName()) == itemName {
+						itemFound = true
+						n, err := store.BuyItem(Assets.Items, key, int32(quantity), Assets.Player)
+						if err != nil {
+							fmt.Println(err)
+							break
+						}
+						fmt.Printf("You have bought %d %s.\n", n, item.GetName())
+					}
+				}
+				if !itemFound {
+					fmt.Printf("I'm sorry. I don't know what '%s' is.\n", cases.Title(language.English).String(itemName))
+				}
+			case "sell":
+				if len(parts) < 3 {
+					fmt.Println("I'm sorry. What are you trying to sell exactly and how much?")
+					continue
+				}
+				quantity, err := strconv.ParseInt(parts[len(parts)-1], 10, 32)
+				if err != nil || quantity < 1 {
+					fmt.Println("Sorry. How may did you want to sell?")
+					continue
+				}
+				itemName := strings.Join(parts[1:len(parts)-1], " ")
+				itemFound := false
+				for key, item := range Assets.Items {
+					if strings.ToLower(item.GetName()) == itemName {
+						itemFound = true
+						n, err := store.SellItem(Assets.Items, key, int32(quantity), Assets.Player)
+						if err != nil {
+							fmt.Println(err)
+							break
+						}
+						fmt.Printf("You have sold %d %s for %d gold.\n", quantity, item.GetName(), n)
+					}
+				}
+				if !itemFound {
+					fmt.Printf("I'm sorry. I don't know what '%s' is.\n", cases.Title(language.English).String(itemName))
+				}
+
+			case "help":
+				help_menu := `
++----------------------------+--------------------------+
+| Command                    | Description              |
++----------------------------+--------------------------+
+| inv [store]                | Check inventory          |
++----------------------------+--------------------------+
+| buy <itemName> <quantity>  | Buy from the store       |
++----------------------------+--------------------------+
+| sell <itemName> <quantity> | Sell from your inventory |
++----------------------------+--------------------------+
+| exit                       | Exit store               |
++----------------------------+--------------------------+
+`
+				fmt.Println(help_menu)
+			case "exit":
+				fmt.Println("Of course. Come back again!")
 				break outer
 			default:
-				fmt.Println("Invalid choice. Please try again.")
+				fmt.Println("I'm sorry I don't understand.")
 			}
 		}
 		if err := scanner.Err(); err != nil {
@@ -246,11 +313,17 @@ func displayInventory(t any) {
 	switch v := t.(type) {
 	case *models.Store:
 		fmt.Printf("\n=== %s Inventory ===\n", v.GetName())
+		fmt.Printf("Gold: %d\n", v.GetGold())
 		for itemID, quantity := range v.GetInventory() {
 			fmt.Printf(" %s: %d\n", Assets.Items[itemID].GetName(), quantity)
 		}
 	case *models.Player:
 		fmt.Printf("\n=== %s Inventory ===\n", v.GetName())
+		if v.GetGold() == 0 {
+			fmt.Println("Gold: Broke")
+		} else {
+			fmt.Printf("Gold: %d\n", v.GetGold())
+		}
 		if len(v.GetInventory()) == 0 {
 			fmt.Println("Your inventory is empty...")
 			if generateJoke() {

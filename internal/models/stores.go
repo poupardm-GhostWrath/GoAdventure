@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"math/rand/v2"
 	"time"
 )
@@ -75,49 +76,69 @@ func (s *Store) DecreaseGold(amount int32) error {
 	return nil
 }
 
-func (s *Store) RefreshGold() error {
-	refreshTime := s.last_updated.Add(time.Hour)
-	if time.Now().UTC().After(refreshTime) {
-		s.gold = 1000
-		return nil
-	}
-	return errors.New("too early to refresh")
-}
-
 // Inventory Functions
 func (s *Store) GetInventory() map[int32]int32 {
 	return s.inventory
 }
 
+func (s *Store) RefreshStore(itemList map[int32]*Item) {
+	refreshTime := s.last_updated.Add(time.Hour)
+	if time.Now().UTC().After(refreshTime) {
+		s.gold = 1000
+		s.inventory = generateInventory(itemList)
+		s.last_updated = time.Now().UTC()
+	}
+}
+
 func (s *Store) BuyItem(itemList map[int32]*Item, itemID, quantity int32, player *Player) (n int32, err error) {
-	var gold int32
-	value, ok := s.inventory[itemID]
+	// Check Item Exists
+	item, ok := itemList[itemID]
 	if itemID < 1 || !ok {
 		return 0, errors.New("invalid item id")
 	}
-	if quantity < 1 || quantity > value {
+	if quantity < 1 {
 		return 0, errors.New("invalid quantity")
 	}
-	item := itemList[itemID]
-	gold = item.GetValue() * quantity
-	err = player.RemoveGold(gold)
+
+	// Check Store Inventory
+	storeQuantity, ok := s.inventory[itemID]
+	if !ok {
+		return 0, fmt.Errorf("I'm sorry. I don't carry %s.", itemList[itemID].GetName())
+	}
+	if quantity > storeQuantity {
+		return 0, fmt.Errorf("I'm sorry. I only have %d in stock.", storeQuantity)
+	}
+
+	// Get total amount
+	totalAmount := item.GetValue() * quantity
+
+	// Gold Transfer
+	err = player.RemoveGold(totalAmount)
 	if err != nil {
 		return 0, err
 	}
-	if value == quantity {
+	err = s.IncreaseGold(totalAmount)
+	if err != nil {
+		return 0, err
+	}
+
+	// Item Transfer
+	err = player.AddItem(itemID, quantity)
+	if err != nil {
+		return 0, err
+	}
+	if storeQuantity == quantity {
 		delete(s.inventory, itemID)
 	} else {
 		s.inventory[itemID] -= quantity
 	}
-	err = s.IncreaseGold(gold)
-	if err != nil {
-		return 0, err
-	}
+
+	// Return
 	return quantity, nil
 }
 
 func (s *Store) SellItem(itemList map[int32]*Item, itemID, quantity int32, player *Player) (int32, error) {
-	var gold int32
+	// Check Item Exist
 	item, ok := itemList[itemID]
 	if itemID < 1 || !ok {
 		return 0, errors.New("invalid item ID")
@@ -125,23 +146,45 @@ func (s *Store) SellItem(itemList map[int32]*Item, itemID, quantity int32, playe
 	if quantity < 1 {
 		return 0, errors.New("invalid quantity")
 	}
-	gold = item.GetValue() * quantity
+
+	// Check Player Inventory
+	amount, ok := player.GetInventory()[itemID]
+	if !ok {
+		return 0, fmt.Errorf("Oh. Looks like you don't have any %s.", item.GetName())
+	}
+	if amount < quantity {
+		return 0, fmt.Errorf("Oh. Looks like you don't only have %d in your inventory.", amount)
+	}
+
+	// Get Total Amount
+	totalAmount := item.GetValue() * quantity
+
+	// Gold Transfer
+	if totalAmount > s.GetGold() {
+		// Store always wins
+		totalAmount = s.GetGold()
+	}
+	err := s.DecreaseGold(totalAmount)
+	if err != nil {
+		return 0, err
+	}
+	err = player.AddGold(totalAmount)
+	if err != nil {
+		return 0, err
+	}
+
+	// Item Transfer
 	_, ok = s.inventory[itemID]
 	if !ok {
 		s.inventory[itemID] = quantity
 	} else {
 		s.inventory[itemID] += quantity
 	}
-	if gold > s.GetGold() {
-		gold = s.GetGold()
-	}
-	err := s.DecreaseGold(gold)
+	_, err = player.RemoveItem(itemID, quantity)
 	if err != nil {
 		return 0, err
 	}
-	err = player.AddGold(gold)
-	if err != nil {
-		return 0, err
-	}
-	return gold, nil
+
+	// Return
+	return totalAmount, nil
 }
