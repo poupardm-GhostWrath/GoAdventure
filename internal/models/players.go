@@ -19,6 +19,7 @@ type Player struct {
 	inventory map[int32]int32 // map[itemID]quantity
 	gold      int32
 	location  int32
+	equipment equipment
 }
 
 type level struct {
@@ -30,6 +31,12 @@ type Buff struct {
 	target   string
 	value    int32
 	expireAt time.Time
+}
+
+type equipment struct {
+	weapon    int32
+	armor     int32
+	accessory int32
 }
 
 // Initialization
@@ -334,4 +341,163 @@ func (p *Player) DisplayStats() {
 	fmt.Printf(" Defense: %d\n", p.GetDefense())
 	fmt.Printf(" Gold: %d\n", p.GetGold())
 	fmt.Println()
+}
+
+func (p *Player) DisplayGear(itemList map[int32]*Item) {
+	fmt.Println("\n==== Player Gear ====")
+	if p.GetWeapon() == 0 {
+		fmt.Println(" Weapon: Not equipped")
+	} else {
+		fmt.Printf(" Weapon: %s\n", itemList[p.GetWeapon()].GetName())
+	}
+	if p.GetArmor() == 0 {
+		fmt.Println(" Armor: Not equipped")
+	} else {
+		fmt.Printf(" Armor: %s\n", itemList[p.GetArmor()].GetName())
+	}
+	if p.GetAccessory() == 0 {
+		fmt.Println(" Accessory: Not equipped")
+	} else {
+		fmt.Printf(" Accessory: %s\n", itemList[p.GetAccessory()].GetName())
+	}
+	fmt.Println()
+}
+
+// Equipment Functions
+func (p *Player) GetWeapon() int32 {
+	return p.equipment.weapon
+}
+
+func (p *Player) GetArmor() int32 {
+	return p.equipment.armor
+}
+
+func (p *Player) GetAccessory() int32 {
+	return p.equipment.accessory
+}
+
+func (p *Player) EquipWeapon(itemList map[int32]*Item, weaponID int32) error {
+	// Check weapon ID is valid
+	if weaponID < 1 {
+		return errors.New("invalid weapon ID")
+	}
+	item, ok := itemList[weaponID]
+	if !ok {
+		return errors.New("invalid weapon ID")
+	}
+	if item.GetCategory() != "Weapon" {
+		return errors.New("weapon ID is not a weapon")
+	}
+	// Check if player has weapon in inventory
+	_, ok = p.GetInventory()[weaponID]
+	if !ok {
+		return errors.New("you do not have that weapon")
+	}
+	// Check if player already has a weapon equipped
+	_ = p.UnequipWeapon()
+
+	p.equipment.weapon = weaponID
+	_, err := p.RemoveItem(weaponID, 1)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Player) UnequipWeapon() error {
+	// Check weapon actually equipped
+	if p.GetWeapon() == 0 {
+		return errors.New("no weapon equipped")
+	}
+	// Move weapon into inventory
+	err := p.AddItem(p.GetWeapon(), 1)
+	if err != nil {
+		return err
+	}
+	p.equipment.weapon = 0
+	return nil
+}
+
+func (p *Player) EquipArmor(itemList map[int32]*Item, armorID int32) error {
+	// Check armor ID is valid
+	if armorID < 1 {
+		return errors.New("invalid armor ID")
+	}
+	item, ok := itemList[armorID]
+	if !ok {
+		return errors.New("invalid armor ID")
+	}
+	if item.GetCategory() != "Armor" {
+		return errors.New("armor ID is not an armor")
+	}
+	// Check if player has armor in inventory
+	_, ok = p.GetInventory()[armorID]
+	if !ok {
+		return errors.New("you do not have that armor")
+	}
+	// Check if player already has an armor equipped
+	_ = p.UnequipArmor()
+
+	p.equipment.armor = armorID
+	_, err := p.RemoveItem(armorID, 1)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Player) UnequipArmor() error {
+	// Check armor actually equipped
+	if p.GetArmor() == 0 {
+		return errors.New("No armor equipped")
+	}
+	// Move armor into inventory
+	err := p.AddItem(p.GetArmor(), 1)
+	if err != nil {
+		return err
+	}
+	p.equipment.armor = 0
+	return nil
+}
+
+func (p *Player) EquipAccessory(itemList map[int32]*Item, accessoryID int32) error {
+	// Check accessory ID is valid
+	if accessoryID < 1 {
+		return errors.New("invalid accessory ID")
+	}
+	item, ok := itemList[accessoryID]
+	if !ok {
+		return errors.New("invalid accessory ID")
+	}
+	if item.GetCategory() != "Accessory" {
+		return errors.New("accessory ID is not an accessory")
+	}
+	// Check if player has accessory in inventory
+	_, ok = p.GetInventory()[accessoryID]
+	if !ok {
+		return errors.New("you do not have that accessory")
+	}
+	// Check if player already has an accessory equipped
+	_ = p.UnequipAccessory()
+
+	p.equipment.accessory = accessoryID
+	_, err := p.RemoveItem(accessoryID, 1)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Player) UnequipAccessory() error {
+	// Check accessory actually equipped
+	if p.GetAccessory() == 0 {
+		return errors.New("No accessory equipped")
+	}
+	// Move accessory into inventory
+	err := p.AddItem(p.GetAccessory(), 1)
+	if err != nil {
+		return err
+	}
+	p.equipment.accessory = 0
+	return nil
 }
