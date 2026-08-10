@@ -79,8 +79,6 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 	case "stat":
 		Assets.Player.DisplayStats()
 		return false, nil
-<<<<<<< HEAD
-=======
 	case "gear":
 		Assets.Player.DisplayGear(Assets.Items)
 		return false, nil
@@ -147,7 +145,6 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 		}
 		fmt.Printf("You un-equipped your %s.\n", parts[1])
 		return false, nil
->>>>>>> e79b4e4 (Modified player database to include equipped gear.)
 	case "store":
 		if !Assets.Locations[Assets.Player.GetLocation()].HasStore() {
 			return false, errors.New("This area doesn't have a store.")
