@@ -79,6 +79,75 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 	case "stat":
 		Assets.Player.DisplayStats()
 		return false, nil
+<<<<<<< HEAD
+=======
+	case "gear":
+		Assets.Player.DisplayGear(Assets.Items)
+		return false, nil
+	case "equip":
+		if len(parts) < 3 {
+			return false, errors.New("Equip what? 'usage: equip <gear category> <item name>")
+		}
+		itemName := strings.Join(parts[2:], " ")
+		var itemID int32
+		var found = false
+		for key, item := range Assets.Items {
+			if strings.ToLower(item.GetName()) == itemName {
+				itemID = key
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false, errors.New("Invalid item name")
+		}
+		switch parts[1] {
+		case "weapon":
+			err := Assets.Player.EquipWeapon(Assets.Items, itemID)
+			if err != nil {
+				return false, err
+			}
+		case "armor":
+			err := Assets.Player.EquipArmor(Assets.Items, itemID)
+			if err != nil {
+				return false, err
+			}
+		case "accessory":
+			err := Assets.Player.EquipAccessory(Assets.Items, itemID)
+			if err != nil {
+				return false, err
+			}
+		default:
+			return false, errors.New("Invalid gear category")
+		}
+		fmt.Printf("%s was equipped.\n", Assets.Items[itemID].GetName())
+		return false, nil
+	case "unequip":
+		if len(parts) < 2 {
+			return false, errors.New("Un-equip what?")
+		}
+		switch parts[1] {
+		case "weapon":
+			err := Assets.Player.UnequipWeapon()
+			if err != nil {
+				return false, err
+			}
+		case "armor":
+			err := Assets.Player.UnequipArmor()
+			if err != nil {
+				return false, err
+			}
+		case "accessory":
+			err := Assets.Player.UnequipAccessory()
+			if err != nil {
+				return false, err
+			}
+		default:
+			return false, errors.New("Invalid slot: Valid inputs are 'weapon', 'armor' or 'accessory'")
+		}
+		fmt.Printf("You un-equipped your %s.\n", parts[1])
+		return false, nil
+>>>>>>> e79b4e4 (Modified player database to include equipped gear.)
 	case "store":
 		if !Assets.Locations[Assets.Player.GetLocation()].HasStore() {
 			return false, errors.New("This area doesn't have a store.")
@@ -152,11 +221,14 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 
 func savePlayer(ctx context.Context) error {
 	err := Cfg.DBQueries.UpdatePlayerByID(ctx, database.UpdatePlayerByIDParams{
-		ID:           Assets.ID,
-		CurrentExp:   Assets.Player.GetCurrentExp(),
-		CurrentLevel: Assets.Player.GetLevel(),
-		Gold:         Assets.Player.GetGold(),
-		LocationID:   Assets.Player.GetLocation(),
+		ID:            Assets.ID,
+		CurrentExp:    Assets.Player.GetCurrentExp(),
+		CurrentLevel:  Assets.Player.GetLevel(),
+		Gold:          Assets.Player.GetGold(),
+		LocationID:    Assets.Player.GetLocation(),
+		WeaponGear:    Assets.Player.GetWeapon(),
+		ArmorGear:     Assets.Player.GetArmor(),
+		AccessoryGear: Assets.Player.GetAccessory(),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to save player: %v\n", err)

@@ -97,7 +97,7 @@ func getPlayer(ctx context.Context, scanner *bufio.Scanner, userID uuid.UUID) (b
 	if err != nil {
 		return false, err
 	}
-	player, err := models.InitPlayer(dbPlayer.ID, dbPlayer.Name, dbPlayer.CurrentExp, dbPlayer.CurrentLevel, dbPlayer.Gold, dbPlayer.LocationID, inventory)
+	player, err := models.InitPlayer(dbPlayer.ID, dbPlayer.Name, dbPlayer.CurrentExp, dbPlayer.CurrentLevel, dbPlayer.Gold, dbPlayer.LocationID, inventory, dbPlayer.WeaponGear, dbPlayer.ArmorGear, dbPlayer.AccessoryGear)
 	if err != nil {
 		return false, err
 	}
