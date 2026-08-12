@@ -54,15 +54,18 @@ type LocationDirection struct {
 }
 
 type Player struct {
-	ID           uuid.UUID
-	Name         string
-	CurrentExp   int32
-	CurrentLevel int32
-	Gold         int32
-	CreatedAt    pgtype.Timestamptz
-	UpdatedAt    pgtype.Timestamptz
-	UserID       uuid.UUID
-	LocationID   int32
+	ID            uuid.UUID
+	Name          string
+	CurrentExp    int32
+	CurrentLevel  int32
+	Gold          int32
+	CreatedAt     pgtype.Timestamptz
+	UpdatedAt     pgtype.Timestamptz
+	UserID        uuid.UUID
+	LocationID    int32
+	WeaponGear    int32
+	ArmorGear     int32
+	AccessoryGear int32
 }
 
 type User struct {

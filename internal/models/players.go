@@ -40,7 +40,7 @@ type equipment struct {
 }
 
 // Initialization
-func InitPlayer(id uuid.UUID, name string, currentExp, currentLevel, gold, location int32, inventory map[int32]int32) (*Player, error) {
+func InitPlayer(id uuid.UUID, name string, currentExp, currentLevel, gold, location int32, inventory map[int32]int32, weapon, armor, accessory int32) (*Player, error) {
 	var uuidNil uuid.UUID
 	if id == uuidNil {
 		return nil, errors.New("invalid id")
@@ -79,6 +79,13 @@ func InitPlayer(id uuid.UUID, name string, currentExp, currentLevel, gold, locat
 
 	// Set Location
 	player.location = location
+
+	// Set Equipment
+	player.equipment = equipment{
+		weapon:    weapon,
+		armor:     armor,
+		accessory: accessory,
+	}
 
 	return &player, nil
 }

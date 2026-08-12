@@ -73,11 +73,19 @@ Available commands:
 - **'exit'** or **'quit'** - Exit the game.
 - **'help'** - Displays the help menu.
 - **'stat'** - Displays your stats.
+- **'gear'** - Displays your gear.
+- **'equip *\<gear name>*'** - Equip specified gear.
+- **'unequip *\<gear slot>*'** - Unequip gear in specified gear slot.
 - **'inv'** or 'inventory' - Displays your inventory.
 - **'look'** - Displays information about your surrounding.
 - **'move *\<direction>*'** - Moves you to the location in the direction specified.
 - **'store'** - Enters the store that are available in towns.
 - **'eat *\<food name>*'** - Eat food to get a buff.
+
+Available store commands:
+- **'inv *\[store]*'** - Check inventory.
+- **'buy *\<item name>* *\<quantity>*'** - Buy item from store.
+- **'sell *\<item name>* *\<quantity>*'** - Sell item from inventory.
 
 ## 🤝 Contributing
 

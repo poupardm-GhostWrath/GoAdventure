@@ -40,7 +40,7 @@ func (q *Queries) DeletePlayersByID(ctx context.Context, id uuid.UUID) error {
 }
 
 const getPlayersByID = `-- name: GetPlayersByID :one
-SELECT id, name, current_exp, current_level, gold, created_at, updated_at, user_id, location_id FROM players
+SELECT id, name, current_exp, current_level, gold, created_at, updated_at, user_id, location_id, weapon_gear, armor_gear, accessory_gear FROM players
 WHERE id = $1
 `
 
@@ -57,6 +57,9 @@ func (q *Queries) GetPlayersByID(ctx context.Context, id uuid.UUID) (Player, err
 		&i.UpdatedAt,
 		&i.UserID,
 		&i.LocationID,
+		&i.WeaponGear,
+		&i.ArmorGear,
+		&i.AccessoryGear,
 	)
 	return i, err
 }
@@ -93,16 +96,19 @@ func (q *Queries) GetPlayersByUserID(ctx context.Context, userID uuid.UUID) ([]G
 
 const updatePlayerByID = `-- name: UpdatePlayerByID :exec
 UPDATE players
-SET current_exp = $2, current_level = $3, gold = $4, location_id = $5, updated_at = NOW()
+SET current_exp = $2, current_level = $3, gold = $4, location_id = $5, weapon_gear = $6, armor_gear = $7, accessory_gear = $8, updated_at = NOW()
 WHERE id = $1
 `
 
 type UpdatePlayerByIDParams struct {
-	ID           uuid.UUID
-	CurrentExp   int32
-	CurrentLevel int32
-	Gold         int32
-	LocationID   int32
+	ID            uuid.UUID
+	CurrentExp    int32
+	CurrentLevel  int32
+	Gold          int32
+	LocationID    int32
+	WeaponGear    int32
+	ArmorGear     int32
+	AccessoryGear int32
 }
 
 func (q *Queries) UpdatePlayerByID(ctx context.Context, arg UpdatePlayerByIDParams) error {
@@ -112,6 +118,9 @@ func (q *Queries) UpdatePlayerByID(ctx context.Context, arg UpdatePlayerByIDPara
 		arg.CurrentLevel,
 		arg.Gold,
 		arg.LocationID,
+		arg.WeaponGear,
+		arg.ArmorGear,
+		arg.AccessoryGear,
 	)
 	return err
 }
