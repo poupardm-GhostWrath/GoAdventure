@@ -33,26 +33,34 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 	case "help":
 		fmt.Println("=== Help Menu ===")
 		help_menu := `
-+-------------+-------------------+
-| Action      | Command           |
-+-------------+-------------------+
-| Exit        | exit              |
-|             | quit              |
-+-------------+-------------------+
-| Help        | help              |
-+-------------+-------------------+
-| Move        | move <direction>  |
-|             | go <direction>    |
-+-------------+-------------------+
-| Look        | look              |
-+-------------+-------------------+
-| Inventory   | inventory         |
-|             | inv               |
-+-------------+-------------------+
-| Stat        |	stat              |
-+-------------+-------------------+
-| Store       | store             |
-+-------------+-------------------+
++--------------+--------------------+
+| Action       | Command            |
++--------------+--------------------+
+| Exit         | exit               |
+|              | quit               |
++--------------+--------------------+
+| Help Menu    | help               |
++--------------+--------------------+
+| Move         | move <direction>   |
+|              | go <direction>     |
++--------------+--------------------+
+| Look Around  | look               |
++--------------+--------------------+
+| Display      | inventory          |
+| Inventory    | inv                |
++--------------+--------------------+
+| Display Stat | stat               |
++--------------+--------------------+
+| Display Gear | gear               |
++--------------+--------------------+
+| Equip Gear   | equip <itemName>   |
++--------------+--------------------+
+| Unequip Gear | unequip <gearSlot> |
++--------------+--------------------+
+| Access Store | store              |
++--------------+--------------------+
+| Clear Screen | clear              |
++--------------+--------------------+
 `
 		fmt.Println(help_menu)
 		return false, nil
@@ -83,10 +91,10 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 		Assets.Player.DisplayGear(Assets.Items)
 		return false, nil
 	case "equip":
-		if len(parts) < 3 {
-			return false, errors.New("Equip what? 'usage: equip <gear category> <item name>")
+		if len(parts) < 2 {
+			return false, errors.New("Equip what? 'usage: equip <item name>'")
 		}
-		itemName := strings.Join(parts[2:], " ")
+		itemName := strings.Join(parts[1:], " ")
 		var itemID int32
 		var found = false
 		for key, item := range Assets.Items {
@@ -99,30 +107,30 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 		if !found {
 			return false, errors.New("Invalid item name")
 		}
-		switch parts[1] {
-		case "weapon":
+		switch Assets.Items[itemID].GetCategory() {
+		case "Weapon":
 			err := Assets.Player.EquipWeapon(Assets.Items, itemID)
 			if err != nil {
 				return false, err
 			}
-		case "armor":
+		case "Armor":
 			err := Assets.Player.EquipArmor(Assets.Items, itemID)
 			if err != nil {
 				return false, err
 			}
-		case "accessory":
+		case "Accessory":
 			err := Assets.Player.EquipAccessory(Assets.Items, itemID)
 			if err != nil {
 				return false, err
 			}
 		default:
-			return false, errors.New("Invalid gear category")
+			return false, errors.New("Item is not an equipable item.")
 		}
 		fmt.Printf("%s was equipped.\n", Assets.Items[itemID].GetName())
 		return false, nil
 	case "unequip":
 		if len(parts) < 2 {
-			return false, errors.New("Un-equip what?")
+			return false, errors.New("Un-equip what? 'usage: unequip <item slot>'")
 		}
 		switch parts[1] {
 		case "weapon":
@@ -210,6 +218,9 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 				fmt.Printf("Added %d %s.\n", amount, Assets.Items[int32(itemID)].GetName())
 			}
 		}
+		return false, nil
+	case "clear":
+		ClearScreen()
 		return false, nil
 	default:
 		return false, errors.New("Invalid command")
@@ -382,16 +393,16 @@ func displayInventory(t any) {
 	switch v := t.(type) {
 	case *models.Store:
 		fmt.Printf("\n=== %s Inventory ===\n", v.GetName())
-		fmt.Printf("Gold: %d\n", v.GetGold())
+		fmt.Printf(" Gold: %d\n", v.GetGold())
 		for itemID, quantity := range v.GetInventory() {
 			fmt.Printf(" %s: %d\n", Assets.Items[itemID].GetName(), quantity)
 		}
 	case *models.Player:
 		fmt.Printf("\n=== %s Inventory ===\n", v.GetName())
 		if v.GetGold() == 0 {
-			fmt.Println("Gold: Broke")
+			fmt.Println(" Gold: Broke")
 		} else {
-			fmt.Printf("Gold: %d\n", v.GetGold())
+			fmt.Printf(" Gold: %d\n", v.GetGold())
 		}
 		if len(v.GetInventory()) == 0 {
 			fmt.Println("Your inventory is empty...")
