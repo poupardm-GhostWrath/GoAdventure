@@ -103,9 +103,11 @@ func (s *Store) BuyItem(itemList map[int32]*Item, itemID, quantity int32, player
 	// Check Store Inventory
 	storeQuantity, ok := s.inventory[itemID]
 	if !ok {
-		return 0, fmt.Errorf("I'm sorry. I don't carry %s.", itemList[itemID].GetName())
+		//lint:ignore ST1005 NPC talking
+		return 0, fmt.Errorf("I'm sorry. I don't carry %s.", itemList[itemID].GetName()) //lint:ignore ST1005 NPC talking
 	}
 	if quantity > storeQuantity {
+		//lint:ignore ST1005 NPC talking
 		return 0, fmt.Errorf("I'm sorry. I only have %d in stock.", storeQuantity)
 	}
 
@@ -150,9 +152,11 @@ func (s *Store) SellItem(itemList map[int32]*Item, itemID, quantity int32, playe
 	// Check Player Inventory
 	amount, ok := player.GetInventory()[itemID]
 	if !ok {
+		//lint:ignore ST1005 NPC talking
 		return 0, fmt.Errorf("Oh. Looks like you don't have any %s.", item.GetName())
 	}
 	if amount < quantity {
+		//lint:ignore ST1005 NPC talking
 		return 0, fmt.Errorf("Oh. Looks like you don't only have %d in your inventory.", amount)
 	}
 

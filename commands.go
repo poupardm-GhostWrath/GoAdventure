@@ -66,7 +66,7 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 		return false, nil
 	case "go", "move":
 		if len(parts) < 2 {
-			return false, errors.New("Go where?")
+			return false, errors.New("go where?")
 		} else {
 			for _, direction := range Assets.Locations[Assets.Player.GetLocation()].GetDirections() {
 				if direction.GetDirection() == parts[1] {
@@ -76,7 +76,7 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 					return false, nil
 				}
 			}
-			return false, errors.New("Invalid Direction.")
+			return false, errors.New("invalid direction")
 		}
 	case "look":
 		look()
@@ -92,7 +92,7 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 		return false, nil
 	case "equip":
 		if len(parts) < 2 {
-			return false, errors.New("Equip what? 'usage: equip <item name>'")
+			return false, errors.New("equip what? 'usage: equip <item name>'")
 		}
 		itemName := strings.Join(parts[1:], " ")
 		var itemID int32
@@ -105,7 +105,7 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 			}
 		}
 		if !found {
-			return false, errors.New("Invalid item name")
+			return false, errors.New("invalid item name")
 		}
 		switch Assets.Items[itemID].GetCategory() {
 		case "Weapon":
@@ -124,13 +124,13 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 				return false, err
 			}
 		default:
-			return false, errors.New("Item is not an equipable item.")
+			return false, errors.New("item is not an equipable item")
 		}
 		fmt.Printf("%s was equipped.\n", Assets.Items[itemID].GetName())
 		return false, nil
 	case "unequip":
 		if len(parts) < 2 {
-			return false, errors.New("Un-equip what? 'usage: unequip <item slot>'")
+			return false, errors.New("un-equip what? 'usage: unequip <item slot>'")
 		}
 		switch parts[1] {
 		case "weapon":
@@ -149,13 +149,13 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 				return false, err
 			}
 		default:
-			return false, errors.New("Invalid slot: Valid inputs are 'weapon', 'armor' or 'accessory'")
+			return false, errors.New("invalid slot: valid inputs are 'weapon', 'armor' or 'accessory'")
 		}
 		fmt.Printf("You un-equipped your %s.\n", parts[1])
 		return false, nil
 	case "store":
 		if !Assets.Locations[Assets.Player.GetLocation()].HasStore() {
-			return false, errors.New("This area doesn't have a store.")
+			return false, errors.New("this area doesn't have a store")
 		}
 		err := store(scanner)
 		if err != nil {
@@ -223,7 +223,7 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 		ClearScreen()
 		return false, nil
 	default:
-		return false, errors.New("Invalid command")
+		return false, errors.New("invalid command")
 	}
 }
 
@@ -239,11 +239,11 @@ func savePlayer(ctx context.Context) error {
 		AccessoryGear: Assets.Player.GetAccessory(),
 	})
 	if err != nil {
-		return fmt.Errorf("failed to save player: %v\n", err)
+		return fmt.Errorf("failed to save player: %v", err)
 	}
 	err = Cfg.DBQueries.DeleteInventoryItemByPlayerID(ctx, Assets.ID)
 	if err != nil {
-		return fmt.Errorf("failed to delete inventory for player: %v\n", err)
+		return fmt.Errorf("failed to delete inventory for player: %v", err)
 	}
 	for itemID, quantity := range Assets.Player.GetInventory() {
 		err = Cfg.DBQueries.CreateInventoryItem(ctx, database.CreateInventoryItemParams{
@@ -252,7 +252,7 @@ func savePlayer(ctx context.Context) error {
 			Quantity: quantity,
 		})
 		if err != nil {
-			return fmt.Errorf("failed to save inventory: %v\n", err)
+			return fmt.Errorf("failed to save inventory: %v", err)
 		}
 	}
 	return nil
@@ -423,8 +423,5 @@ func displayInventory(t any) {
 
 func generateJoke() bool {
 	randNum := rand.IntN(100) + 1
-	if randNum < 26 {
-		return true
-	}
-	return false
+	return randNum < 26
 }

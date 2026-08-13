@@ -36,6 +36,7 @@ func main() {
 	os.Exit(status)
 }
 
+//lint:ignore SA4009 Not in use
 func run(ctx context.Context, cancel context.CancelFunc) int {
 	// Initialize Global Config & Assets
 	initCfg, err := initialization.InitializeConfig()

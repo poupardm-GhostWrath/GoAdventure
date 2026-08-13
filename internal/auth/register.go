@@ -58,5 +58,5 @@ func Register(ctx context.Context, dbQueries *database.Queries, scanner *bufio.S
 			return nil
 		}
 	}
-	return errors.New("Too many attempts.")
+	return errors.New("too many attempts")
 }
