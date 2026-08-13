@@ -241,7 +241,7 @@ func (p *Player) EatFood(itemList map[int32]*Item, itemID int32) error {
 		return errors.New("invalid item ID")
 	}
 	if itemList[itemID].category != "Meal" {
-		return errors.New("item is not a food item.")
+		return errors.New("item is not a food item")
 	}
 	quantity, ok := p.inventory[itemID]
 	if !ok {
@@ -456,7 +456,7 @@ func (p *Player) EquipArmor(itemList map[int32]*Item, armorID int32) error {
 func (p *Player) UnequipArmor() error {
 	// Check armor actually equipped
 	if p.GetArmor() == 0 {
-		return errors.New("No armor equipped")
+		return errors.New("no armor equipped")
 	}
 	// Move armor into inventory
 	err := p.AddItem(p.GetArmor(), 1)
@@ -498,7 +498,7 @@ func (p *Player) EquipAccessory(itemList map[int32]*Item, accessoryID int32) err
 func (p *Player) UnequipAccessory() error {
 	// Check accessory actually equipped
 	if p.GetAccessory() == 0 {
-		return errors.New("No accessory equipped")
+		return errors.New("no accessory equipped")
 	}
 	// Move accessory into inventory
 	err := p.AddItem(p.GetAccessory(), 1)

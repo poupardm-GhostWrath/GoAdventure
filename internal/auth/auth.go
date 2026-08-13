@@ -8,8 +8,9 @@ import (
 
 func HashPassword(password string) (string, error) {
 	hash, err := argon2id.CreateHash(password, &argon2id.Params{
-		Memory:      128 * 1024,
-		Iterations:  4,
+		Memory:     128 * 1024,
+		Iterations: 4,
+		// #nosec G115 -- false positive: Current CPU unable to max out uint8
 		Parallelism: uint8(runtime.NumCPU()),
 		SaltLength:  16,
 		KeyLength:   32,

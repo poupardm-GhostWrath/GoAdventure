@@ -35,9 +35,12 @@ func InitStore(locationID int32, name string, itemList map[int32]*Item) (*Store,
 func generateInventory(items map[int32]*Item) map[int32]int32 {
 	inventory := make(map[int32]int32)
 	for key := range items {
+		// #nosec G404 -- false positive: random number is for generating inventory. Not critical.
 		randNum := rand.IntN(100) + 1
 		if randNum > 49 {
+			// #nosec G404 -- false positive: random number is for generating inventory. Not critical.
 			randAmount := rand.IntN(10) + 1
+			// #nosec G115 -- false positive: randAmount never going to be higher than 10
 			inventory[key] = int32(randAmount)
 		}
 	}
@@ -103,9 +106,11 @@ func (s *Store) BuyItem(itemList map[int32]*Item, itemID, quantity int32, player
 	// Check Store Inventory
 	storeQuantity, ok := s.inventory[itemID]
 	if !ok {
-		return 0, fmt.Errorf("I'm sorry. I don't carry %s.", itemList[itemID].GetName())
+		//lint:ignore ST1005 NPC talking
+		return 0, fmt.Errorf("I'm sorry. I don't carry %s.", itemList[itemID].GetName()) //lint:ignore ST1005 NPC talking
 	}
 	if quantity > storeQuantity {
+		//lint:ignore ST1005 NPC talking
 		return 0, fmt.Errorf("I'm sorry. I only have %d in stock.", storeQuantity)
 	}
 
@@ -150,9 +155,11 @@ func (s *Store) SellItem(itemList map[int32]*Item, itemID, quantity int32, playe
 	// Check Player Inventory
 	amount, ok := player.GetInventory()[itemID]
 	if !ok {
+		//lint:ignore ST1005 NPC talking
 		return 0, fmt.Errorf("Oh. Looks like you don't have any %s.", item.GetName())
 	}
 	if amount < quantity {
+		//lint:ignore ST1005 NPC talking
 		return 0, fmt.Errorf("Oh. Looks like you don't only have %d in your inventory.", amount)
 	}
 
