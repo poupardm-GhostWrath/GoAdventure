@@ -35,9 +35,12 @@ func InitStore(locationID int32, name string, itemList map[int32]*Item) (*Store,
 func generateInventory(items map[int32]*Item) map[int32]int32 {
 	inventory := make(map[int32]int32)
 	for key := range items {
+		// #nosec G404 -- false positive: random number is for generating inventory. Not critical.
 		randNum := rand.IntN(100) + 1
 		if randNum > 49 {
+			// #nosec G404 -- false positive: random number is for generating inventory. Not critical.
 			randAmount := rand.IntN(10) + 1
+			// #nosec G115 -- false positive: randAmount never going to be higher than 10
 			inventory[key] = int32(randAmount)
 		}
 	}

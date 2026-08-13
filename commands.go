@@ -71,7 +71,10 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 			for _, direction := range Assets.Locations[Assets.Player.GetLocation()].GetDirections() {
 				if direction.GetDirection() == parts[1] {
 					fmt.Printf("Moving to %s...\n", Assets.Locations[direction.GetLocationID()].GetName())
-					Assets.Player.SetLocation(direction.GetLocationID())
+					err := Assets.Player.SetLocation(direction.GetLocationID())
+					if err != nil {
+						return false, err
+					}
 					look()
 					return false, nil
 				}
@@ -197,7 +200,7 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 					}
 					amount = int32(num)
 				}
-				Assets.Player.AddGold(int32(amount))
+				_ = Assets.Player.AddGold(int32(amount))
 				fmt.Printf("Added %d gold.\n", amount)
 			case "item":
 				if len(parts) < 3 {
@@ -214,7 +217,7 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 				if err != nil {
 					return false, err
 				}
-				Assets.Player.AddItem(int32(itemID), int32(amount))
+				_ = Assets.Player.AddItem(int32(itemID), int32(amount))
 				fmt.Printf("Added %d %s.\n", amount, Assets.Items[int32(itemID)].GetName())
 			}
 		}
@@ -422,6 +425,7 @@ func displayInventory(t any) {
 }
 
 func generateJoke() bool {
+	// #nosec G404 -- false positive: Random number not mission critical. Only used for checking if need to generate a joke.
 	randNum := rand.IntN(100) + 1
 	return randNum < 26
 }
