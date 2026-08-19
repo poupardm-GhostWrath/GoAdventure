@@ -185,6 +185,40 @@ func parseCommand(scanner *bufio.Scanner, cmd string) (bool, error) {
 			return false, err
 		}
 		return false, nil
+	case "fight":
+		if Assets.Locations[Assets.Player.GetLocation()].HasStore() {
+			return false, errors.New("no fighting in town")
+		}
+		enemyName := strings.Join(parts[1:], " ")
+		var enemyID int32
+		found := false
+		for key, enemy := range Assets.Enemies {
+			if strings.ToLower(enemy.GetName()) == enemyName {
+				found = true
+				enemyID = key
+				break
+			}
+		}
+		if !found {
+			return false, errors.New("enemy doesn't exist")
+		}
+		value, ok := Assets.EnemiesLocation[Assets.Player.GetLocation()][enemyID]
+		if !ok {
+			return false, errors.New("can't see that enemy here")
+		}
+		hasWin, err := combat(scanner, enemyID)
+		if err != nil {
+			return false, err
+		}
+		if hasWin {
+			if value == 1 {
+				delete(Assets.EnemiesLocation[Assets.Player.GetLocation()], enemyID)
+			} else {
+				Assets.EnemiesLocation[Assets.Player.GetLocation()][enemyID] -= 1
+			}
+			return false, nil
+		}
+		return false, nil
 	case "test":
 		if Cfg.ENV == "development" {
 			if len(parts) < 2 {
@@ -428,4 +462,46 @@ func generateJoke() bool {
 	// #nosec G404 -- false positive: Random number not mission critical. Only used for checking if need to generate a joke.
 	randNum := rand.IntN(100) + 1
 	return randNum < 26
+}
+
+func combat(scanner *bufio.Scanner, enemyID int32) (bool, error) {
+	ClearScreen()
+	enemy := Assets.Enemies[enemyID]
+	fmt.Printf("You started fighting %s.\n", enemy.GetName())
+	combatMenu := `
+What will you do?
+  - Attack
+  - Item
+  - Run`
+outer:
+	for {
+		if scanner.Scan() {
+			fmt.Println(combatMenu)
+			fmt.Print("Input: ")
+			input := scanner.Text()
+			switch strings.ToLower(strings.TrimSpace(input)) {
+			case "attack":
+				// WIP
+				// TODO: Attack enemy
+				return false, nil
+			case "item":
+				// WIP
+				// TODO: List Inventory, Use Item or Exit (if exit must still be player turn)
+				if input == "exit" {
+					continue outer
+				}
+				return false, nil
+			case "run":
+				if (rand.IntN(2) + 1) == 2 {
+					return false, nil
+				}
+				fmt.Println("You failed to run away...")
+			default:
+				fmt.Println("invalid command")
+			}
+		}
+		if err := scanner.Err(); err != nil {
+			return false, err
+		}
+	}
 }
